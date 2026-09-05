@@ -1,2 +1,7 @@
-# sacs-ciip
-SecureAfrica Cyber Solutions (SACS) Cyber Intelligence and Investigation Program (CIIP) learning resources.
+# SACS CIIP
+
+SecureAfrica Cyber Solutions (SACS) Ltd.
+
+Cyber Intelligence and Investigation Program (CIIP)
+
+A 26-week mentor-led cybersecurity intelligence and investigation programme.
