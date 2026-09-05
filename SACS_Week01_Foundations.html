@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 01 Case File: Foundations | SACS Cyber Intelligence &amp; Investigations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1319;
+    --panel:#171E27;
+    --panel-alt:#1D2631;
+    --panel-raise:#232E3A;
+    --line:#2C3846;
+    --line-soft:#212B36;
+    --text:#E8ECF1;
+    --text-dim:#9AAABB;
+    --text-faint:#65798D;
+    --amber:#E3A73A;
+    --amber-dim:#8A6A2C;
+    --teal:#39C6B8;
+    --teal-dim:#1F6E66;
+    --red:#E2574C;
+    --red-dim:#6E2A25;
+    --green:#5FBF7A;
+    --radius:10px;
+    --serif-none:0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-dim); color:#fff;}
+  a{color:var(--teal);}
+  h1,h2,h3,h4{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin:0 0 0.5em 0;
+    color:#fff;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  p{margin:0 0 1em 0;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 22px;}
+
+  /* ===== TOP BAR ===== */
+  .topbar{
+    background:linear-gradient(180deg, #131922 0%, #10151C 100%);
+    border-bottom:1px solid var(--line);
+    padding:18px 0 0 0;
+    position:sticky; top:0; z-index:50;
+  }
+  .topbar-inner{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:20px; padding-bottom:16px; flex-wrap:wrap;
+  }
+  .brand-block{display:flex; align-items:center; gap:16px;}
+  .stamp{
+    border:2.5px solid var(--amber);
+    color:var(--amber);
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:0.09em;
+    padding:7px 12px;
+    border-radius:4px;
+    transform:rotate(-4deg);
+    text-align:center;
+    line-height:1.3;
+    white-space:nowrap;
+    background:rgba(227,167,58,0.06);
+  }
+  .stamp .stamp-big{font-size:17px; display:block;}
+  .brand-text .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--teal);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    margin-bottom:3px;
+  }
+  .brand-text h1{font-size:26px; margin:0;}
+  .brand-text .sub{color:var(--text-dim); font-size:14px; margin-top:2px;}
+  .meta-strip{
+    display:flex; gap:22px; font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; color:var(--text-faint); flex-wrap:wrap;
+  }
+  .meta-strip span{margin-right:22px; margin-bottom:4px; display:inline-block;}
+  .meta-strip span b{color:var(--text-dim); font-weight:600;}
+
+  /* ===== TABS ===== */
+  .tabs{
+    display:flex; gap:4px; margin-top:18px; overflow-x:auto;
+    padding-bottom:0;
+  }
+  .tab-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:var(--panel-alt);
+    color:var(--text-dim);
+    border:1px solid var(--line);
+    border-bottom:none;
+    padding:11px 18px;
+    border-radius:8px 8px 0 0;
+    cursor:pointer;
+    white-space:nowrap;
+    position:relative;
+    top:1px;
+    transition:background .15s, color .15s;
+  }
+  .tab-btn:hover{background:var(--panel-raise); color:var(--text);}
+  .tab-btn.active{
+    background:var(--panel);
+    color:#fff;
+    border-color:var(--line);
+    border-bottom:1px solid var(--panel);
+  }
+  .tab-btn .tag-num{color:var(--amber); margin-right:7px;}
+
+  /* ===== LAYOUT ===== */
+  .layout{
+    display:flex;
+    gap:22px;
+    padding:26px 0 60px 0;
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+  .layout > .panel{flex:1 1 620px; min-width:0;}
+  .layout > .sidebar-col{flex:0 0 300px; width:300px;}
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:0 var(--radius) var(--radius) var(--radius);
+    padding:34px;
+    min-height:420px;
+  }
+  .section{display:none;}
+  .section.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .kicker{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--amber);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .section h2{font-size:26px; margin-bottom:6px;}
+  .lede{color:var(--text-dim); font-size:16px; max-width:740px; margin-bottom:26px;}
+  .divider{height:1px; background:var(--line-soft); margin:30px 0;}
+
+  /* ===== SIDEBAR ===== */
+  .side-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .side-card h3{font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:var(--teal); font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  .progress-track{
+    background:var(--line-soft); border-radius:20px; height:8px; overflow:hidden; margin:12px 0 6px 0;
+  }
+  .progress-fill{
+    background:linear-gradient(90deg, var(--teal-dim), var(--teal));
+    height:100%; width:0%; transition:width .4s ease; border-radius:20px;
+  }
+  .progress-label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint);}
+  .glossary-item{
+    border-bottom:1px dashed var(--line-soft);
+    padding:9px 0;
+    cursor:pointer;
+  }
+  .glossary-item:last-child{border-bottom:none;}
+  .glossary-term{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px; font-weight:600; color:var(--text);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .glossary-term .plus{color:var(--teal); font-size:15px;}
+  .glossary-def{
+    font-size:13px; color:var(--text-dim); margin-top:6px; display:none; line-height:1.5;
+  }
+  .glossary-item.open .glossary-def{display:block;}
+  .glossary-item.open .plus{transform:rotate(45deg); display:inline-block;}
+
+  .checklist-item{
+    display:flex; align-items:flex-start; gap:9px; margin-bottom:10px; font-size:13.5px; color:var(--text-dim);
+  }
+  .checklist-item input{margin-top:3px; accent-color:var(--teal); width:15px; height:15px; cursor:pointer;}
+  .checklist-item.done label{color:var(--text-faint); text-decoration:line-through;}
+
+  /* ===== ROLE CARDS ===== */
+  .role-grid{display:flex; flex-wrap:wrap; gap:14px; margin-bottom:10px;}
+  .role-grid .role-card{flex:1 1 calc(50% - 7px); min-width:240px;}
+  .role-card{
+    background:var(--panel-alt);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    cursor:pointer;
+    transition:border-color .15s, transform .15s;
+  }
+  .role-card:hover{border-color:var(--teal-dim); transform:translateY(-2px);}
+  .role-card.open{border-color:var(--teal); background:var(--panel-raise);}
+  .role-head{display:flex; justify-content:space-between; align-items:center;}
+  .role-head h4{font-size:15.5px; margin:0; color:#fff;}
+  .role-letter{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink);
+    background:var(--amber); border-radius:5px; width:26px; height:26px;
+    display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;
+  }
+  .role-one-liner{font-size:12.5px; color:var(--text-faint); margin-top:5px;}
+  .role-detail{display:none; margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);}
+  .role-card.open .role-detail{display:block;}
+  .role-detail p{font-size:13.5px; color:var(--text-dim); margin-bottom:9px;}
+  .role-detail .tools-line{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--teal);}
+
+  /* ===== CYCLE DIAGRAM ===== */
+  .cycle-wrap{display:flex; gap:16px; overflow-x:auto; padding:10px 4px 18px 4px;}
+  .cycle-wrap .cycle-step{margin-right:16px;}
+  .cycle-step{
+    flex:0 0 150px;
+    background:var(--panel-alt);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px;
+    cursor:pointer;
+    position:relative;
+  }
+  .cycle-step:not(:last-child)::after{
+    content:'→';
+    position:absolute; right:-20px; top:50%; transform:translateY(-50%);
+    color:var(--text-faint); font-size:16px;
+  }
+  .cycle-step.open{border-color:var(--amber); background:var(--panel-raise);}
+  .cycle-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--amber);}
+  .cycle-step h4{font-size:13.5px; margin:6px 0 0 0;}
+  .cycle-detail{display:none; font-size:12.5px; color:var(--text-dim); margin-top:8px;}
+  .cycle-step.open .cycle-detail{display:block;}
+
+  /* ===== CASE FILE ===== */
+  .case-file{
+    background:var(--panel-alt);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px;
+    margin-bottom:26px;
+  }
+  .case-file-head{
+    display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;
+    border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:16px;
+  }
+  .case-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--red);
+    border:1px solid var(--red-dim); padding:3px 9px; border-radius:4px; letter-spacing:0.06em;
+  }
+  .case-file h3{font-size:20px; margin-bottom:3px;}
+  .case-sub{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-faint);}
+  .case-stats{display:flex; gap:22px; flex-wrap:wrap; margin:16px 0;}
+  .case-stat{margin-right:22px; margin-bottom:8px;}
+  .case-stat .num{font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:var(--amber);}
+  .case-stat .lbl{font-size:11.5px; color:var(--text-faint); font-family:'IBM Plex Mono', monospace;}
+  .lesson-box{
+    background:rgba(57,198,184,0.06);
+    border-left:3px solid var(--teal);
+    padding:14px 16px;
+    border-radius:0 6px 6px 0;
+    margin-top:16px;
+  }
+  .lesson-box b{color:var(--teal);}
+
+  /* ===== EMAIL MOCKUP ===== */
+  .email-mock{
+    background:#F3F1EC;
+    color:#1A1A1A;
+    border-radius:8px;
+    padding:0;
+    overflow:hidden;
+    font-family:'IBM Plex Sans', sans-serif;
+    margin:18px 0;
+    border:1px solid #C9C4B6;
+  }
+  .email-bar{background:#DEDACB; padding:8px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6B6555;}
+  .email-body{padding:20px 22px;}
+  .email-row{font-size:13px; margin-bottom:5px; color:#3A3A3A;}
+  .email-row b{color:#111;}
+  .email-hot{
+    cursor:pointer; border-bottom:2px dotted #C0392B; padding:1px 2px; position:relative;
+  }
+  .email-hot.found{background:#FBE2DE; border-bottom:2px solid #C0392B;}
+  .email-flag{
+    display:none; background:#C0392B; color:#fff; font-size:12px; font-family:'IBM Plex Sans',sans-serif;
+    padding:10px 12px; border-radius:6px; margin-top:6px; line-height:1.4;
+  }
+  .email-flag.show{display:block; margin:8px 22px;}
+  .email-msg{font-size:13.5px; line-height:1.7; color:#222; border-top:1px solid #DEDACB; margin-top:12px; padding-top:14px;}
+  .flag-counter{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--amber); margin-top:10px;
+  }
+
+  /* ===== ACCORDION (law) ===== */
+  .acc-item{border:1px solid var(--line); border-radius:8px; margin-bottom:10px; overflow:hidden; background:var(--panel-alt);}
+  .acc-head{
+    padding:14px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+    font-weight:600; font-size:14.5px;
+  }
+  .acc-head .chev{color:var(--teal); transition:transform .2s; font-size:13px;}
+  .acc-item.open .chev{transform:rotate(90deg);}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+  .acc-item.open .acc-body{max-height:800px;}
+  .acc-body-inner{padding:0 18px 18px 18px; font-size:14px; color:var(--text-dim);}
+  .acc-body-inner ul{margin:8px 0 0 0; padding-left:20px;}
+  .acc-body-inner li{margin-bottom:6px;}
+
+  /* ===== SCENARIOS ===== */
+  .scenario{
+    background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; margin-bottom:16px;
+  }
+  .scenario-q{font-size:14.5px; margin-bottom:12px;}
+  .scenario-opts{display:flex; flex-direction:column; gap:8px;}
+  .scenario-opt{
+    background:var(--panel); border:1px solid var(--line); border-radius:7px;
+    padding:10px 14px; cursor:pointer; font-size:13.5px; color:var(--text-dim);
+    transition:border-color .15s;
+  }
+  .scenario-opt:hover{border-color:var(--teal-dim);}
+  .scenario-opt.correct{border-color:var(--green); background:rgba(95,191,122,0.08); color:var(--text);}
+  .scenario-opt.wrong{border-color:var(--red); background:rgba(226,87,76,0.08); color:var(--text);}
+  .scenario-fb{display:none; margin-top:12px; font-size:13.5px; padding:12px 14px; border-radius:7px; background:var(--panel); border-left:3px solid var(--teal); color:var(--text-dim);}
+  .scenario.answered .scenario-fb{display:block;}
+
+  /* ===== MATCHING GAME ===== */
+  .match-wrap{display:flex; gap:30px; margin:20px 0; flex-wrap:wrap;}
+  .match-wrap .match-col{flex:1 1 260px; min-width:240px;}
+  .match-col h4{font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; margin-bottom:12px;}
+  .drag-item{
+    background:var(--panel-raise); border:1px solid var(--line); border-radius:7px;
+    padding:11px 14px; margin-bottom:10px; cursor:grab; font-size:13.5px;
+    font-family:'IBM Plex Mono', monospace; color:var(--teal);
+  }
+  .drag-item.placed{opacity:0.35; cursor:default;}
+  .drop-zone{
+    background:var(--panel-alt); border:1.5px dashed var(--line); border-radius:7px;
+    padding:11px 14px; margin-bottom:10px; min-height:44px; font-size:13px; color:var(--text-dim);
+    display:flex; align-items:center;
+  }
+  .drop-zone.filled{border-style:solid; border-color:var(--green); background:rgba(95,191,122,0.06);}
+  .drop-zone.over{border-color:var(--teal);}
+  .drop-zone .placeholder{color:var(--text-faint); font-style:italic;}
+
+  /* ===== QUIZ ===== */
+  .quiz-item{margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--line-soft);}
+  .quiz-item:last-child{border-bottom:none;}
+  .quiz-q{font-size:14.5px; font-weight:600; margin-bottom:10px; color:#fff;}
+  .quiz-opts label{
+    display:block; background:var(--panel-alt); border:1px solid var(--line); border-radius:7px;
+    padding:10px 14px; margin-bottom:8px; font-size:13.5px; cursor:pointer; color:var(--text-dim);
+  }
+  .quiz-opts label:hover{border-color:var(--teal-dim);}
+  .quiz-opts input{margin-right:9px; accent-color:var(--teal);}
+  .quiz-result{
+    display:none; font-size:13px; padding:10px 13px; border-radius:6px; margin-top:6px;
+  }
+  .quiz-item.answered .quiz-result{display:block;}
+  .quiz-item.correct .quiz-result{background:rgba(95,191,122,0.1); border-left:3px solid var(--green); color:var(--text);}
+  .quiz-item.incorrect .quiz-result{background:rgba(226,87,76,0.1); border-left:3px solid var(--red); color:var(--text);}
+  .quiz-submit-row{display:flex; align-items:center; gap:16px; margin-top:10px;}
+  .btn{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.03em;
+    background:var(--teal); color:#08201D; border:none; padding:11px 22px; border-radius:7px;
+    cursor:pointer; font-weight:600; transition:background .15s;
+  }
+  .btn:hover{background:#4FDBCB;}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--text-dim);}
+  .btn.ghost:hover{border-color:var(--teal); color:var(--teal);}
+  .quiz-score{font-family:'IBM Plex Mono', monospace; font-size:14px; color:var(--amber);}
+
+  /* ===== NOTEBOOK ===== */
+  .notebook textarea{
+    width:100%; background:var(--panel-alt); border:1px solid var(--line); border-radius:8px;
+    color:var(--text); font-family:'IBM Plex Sans', sans-serif; font-size:14px; padding:14px;
+    resize:vertical; min-height:90px; margin-bottom:16px;
+  }
+  .notebook textarea:focus{outline:none; border-color:var(--teal);}
+  .notebook label{font-size:13.5px; color:var(--text-dim); display:block; margin-bottom:8px; font-weight:600;}
+
+  /* ===== TASK LIST TAB 5 ===== */
+  .task-row{
+    display:flex; align-items:flex-start; gap:14px; background:var(--panel-alt);
+    border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:12px;
+  }
+  .task-check{margin-top:2px; width:18px; height:18px; accent-color:var(--teal); cursor:pointer; flex-shrink:0;}
+  .task-text b{display:block; font-size:14.5px; color:#fff; margin-bottom:3px;}
+  .task-text span{font-size:13px; color:var(--text-dim);}
+  .task-row.done .task-text b, .task-row.done .task-text span{color:var(--text-faint); text-decoration:line-through;}
+
+  .callout{
+    border:1px solid var(--amber-dim); background:rgba(227,167,58,0.07);
+    border-radius:8px; padding:16px 18px; margin:20px 0; font-size:14px; color:var(--text-dim);
+  }
+  .callout b{color:var(--amber);}
+  .callout.next{border-color:var(--teal-dim); background:rgba(57,198,184,0.06);}
+  .callout.next b{color:var(--teal);}
+
+  footer{
+    border-top:1px solid var(--line); padding:24px 0 40px 0; text-align:center;
+    color:var(--text-faint); font-size:12.5px; font-family:'IBM Plex Mono', monospace;
+  }
+
+  @media (max-width:880px){
+    .layout > .sidebar-col{flex-basis:100%; width:100%;}
+    .role-grid .role-card{flex-basis:100%;}
+    .match-wrap .match-col{flex-basis:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-inner">
+      <div class="brand-block">
+        <div class="stamp">CASE FILE<span class="stamp-big">WK 01</span></div>
+        <div class="brand-text">
+          <div class="eyebrow">SACS · Cyber Intelligence &amp; Investigations Professional Track</div>
+          <h1>Foundations, Week 1</h1>
+          <div class="sub">Program orientation, the investigations landscape, and the law and ethics that hold it all together</div>
+        </div>
+      </div>
+      <div class="meta-strip">
+        <span><b>Phase:</b> 0 of 7</span>
+        <span><b>Runtime:</b> approx 2.5 hours</span>
+        <span><b>Format:</b> read, click, try</span>
+      </div>
+    </div>
+    <div class="tabs" id="tabBar">
+      <button class="tab-btn active" data-tab="t1"><span class="tag-num">01</span>Orientation</button>
+      <button class="tab-btn" data-tab="t2"><span class="tag-num">02</span>Case Files</button>
+      <button class="tab-btn" data-tab="t3"><span class="tag-num">03</span>Law &amp; Ethics</button>
+      <button class="tab-btn" data-tab="t4"><span class="tag-num">04</span>Field Lab</button>
+      <button class="tab-btn" data-tab="t5"><span class="tag-num">05</span>This Week's Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="layout">
+
+    <div class="panel">
+
+      <!-- ============ TAB 1: ORIENTATION ============ -->
+      <section class="section active" id="t1">
+        <div class="kicker">Start here</div>
+        <h2>Welcome to the work</h2>
+        <p class="lede">Before you touch a single tool, you need to understand the shape of this field: what it actually is, who does it, and why it matters here, in Nigeria, right now.</p>
+
+        <p>Here is the plain truth about this program. You are not here to become a hacker. You are here to become someone who can find people, follow money, read digital evidence, and explain what happened, clearly enough that a court, a company, or a victim can act on it.</p>
+
+        <p>That is a different skill from breaking into systems. It is closer to what a detective, an auditor, and a journalist do, except the evidence lives on phones, in databases, on blockchains, and sometimes in places that take real courage and discipline to visit safely. Over the next six months, you will build all four of those muscles: finding information, preserving evidence, understanding the people behind the crime, and following the money.</p>
+
+        <p>Nigeria is not a footnote in this story. It sits at the centre of it. Nigerian investigators, working with the EFCC, the police cybercrime units, and international partners, have helped take down some of the most well documented online fraud operations in the world, cases you will study in the next tab. Nigerian fraud rings have also, unfortunately, been behind some of the most damaging business email compromise schemes on record. Both of those facts are why this training exists. The same skills that catch a fraud ring are the skills a fraud ring's victims wish someone had used sooner.</p>
+
+        <div class="callout">
+          <b>A note on tone.</b> Some of what you learn here is heavy. You will read about real victims, real prison sentences, and real psychological manipulation. Treat every case with the seriousness you would want if it were your own business or your own family on the other end of that email.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>The four roles inside this field</h3>
+        <p class="lede" style="margin-bottom:16px;">Most people imagine a single generic "cybersecurity investigator." In reality, the work splits into four distinct roles that often sit on the same case at the same time. Click each card to see what a normal week looks like for that person.</p>
+
+        <div class="role-grid" id="roleGrid">
+          <div class="role-card" data-role="osint">
+            <div class="role-head"><h4>OSINT Analyst</h4><div class="role-letter">O</div></div>
+            <div class="role-one-liner">Finds and connects information that is already public, if you know where and how to look.</div>
+            <div class="role-detail">
+              <p>An OSINT analyst starts with almost nothing, maybe a name, a phone number, or a username, and builds a picture: where this person works, who they know, what platforms they use, where they have been seen online. None of this requires breaking into anything. It requires knowing which search engines, registries, and social platforms hold the pieces, and how to verify that what you found is actually true and not a coincidence of a shared name.</p>
+              <p>A realistic week: tracing a fraud suspect's Instagram handle across five platforms, confirming a company's ownership through public registry records, geolocating a photo a scammer posted by reading the shadows and signage in the background.</p>
+              <div class="tools-line">Typical tools: Google and Bing search operators, Maltego, Shodan, Sherlock, WHOIS lookups.</div>
+            </div>
+          </div>
+          <div class="role-card" data-role="dfir">
+            <div class="role-head"><h4>DFIR Examiner</h4><div class="role-letter">D</div></div>
+            <div class="role-one-liner">Recovers and preserves digital evidence from devices, in a way that holds up in court.</div>
+            <div class="role-detail">
+              <p>DFIR stands for Digital Forensics and Incident Response. This person is handed a laptop, a phone, or a hard drive and has to answer: what happened on this device, when, and who did it. Every step has to be documented well enough that a defence lawyer cannot later claim the evidence was tampered with.</p>
+              <p>A realistic week: imaging a seized laptop with a write blocker so nothing on the original disk changes, recovering deleted chat logs, building a timeline of when a suspicious file was created, opened, and emailed out.</p>
+              <div class="tools-line">Typical tools: Autopsy, FTK Imager, Volatility, Wireshark.</div>
+            </div>
+          </div>
+          <div class="role-card" data-role="cti">
+            <div class="role-head"><h4>CTI Analyst</h4><div class="role-letter">C</div></div>
+            <div class="role-one-liner">Studies how attackers operate so organisations can recognise and stop them earlier next time.</div>
+            <div class="role-detail">
+              <p>Cyber Threat Intelligence is less about one case and more about patterns. A CTI analyst asks: who is behind this style of attack, what have they done before, what will they likely do next. They turn scattered technical clues into a profile that a security team can actually act on.</p>
+              <p>A realistic week: mapping a phishing campaign's infrastructure back to a known fraud group, writing a briefing that tells a bank's security team what to watch for this month, tracking a ransomware group's leak site for new victims.</p>
+              <div class="tools-line">Typical tools: MITRE ATT&amp;CK, MISP, threat feeds, link analysis software.</div>
+            </div>
+          </div>
+          <div class="role-card" data-role="cci">
+            <div class="role-head"><h4>Cybercrime Investigator</h4><div class="role-letter">I</div></div>
+            <div class="role-one-liner">Holds the whole case together, evidence, law, and people, and drives it toward a result.</div>
+            <div class="role-detail">
+              <p>This is often the coordinating role. A cybercrime investigator understands enough OSINT, forensics, and threat intelligence to direct all three, while also understanding what a prosecutor needs to actually charge someone. They interview victims and witnesses, decide what evidence to request, and write the report that everything else feeds into.</p>
+              <p>A realistic week: taking a fraud report from a small business owner, deciding which leads to chase first, coordinating with a forensic examiner on a seized phone, and preparing a case summary for referral to the EFCC.</p>
+              <div class="tools-line">Typical tools: case management systems, all of the above, plus a great deal of interviewing skill.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>The intelligence cycle: how a case actually moves</h3>
+        <p class="lede" style="margin-bottom:16px;">Every investigation, no matter how small, moves through the same six stages. Click through them using one running example: a small Lagos business owner reports that her supplier's bank account details "changed" and she just wired 4 million naira to a fraudster.</p>
+
+        <div class="cycle-wrap" id="cycleWrap">
+          <div class="cycle-step" data-step="1">
+            <div class="cycle-num">STEP 1</div>
+            <h4>Direction</h4>
+            <div class="cycle-detail">Someone defines the question. Here: who received the 4 million naira, and can any of it still be recovered or traced before it moves further?</div>
+          </div>
+          <div class="cycle-step" data-step="2">
+            <div class="cycle-num">STEP 2</div>
+            <h4>Collection</h4>
+            <div class="cycle-detail">Gather everything available: the fraudulent email, the new bank account number, the business owner's original invoice, any WhatsApp messages exchanged before the transfer.</div>
+          </div>
+          <div class="cycle-step" data-step="3">
+            <div class="cycle-num">STEP 3</div>
+            <h4>Processing</h4>
+            <div class="cycle-detail">Turn raw material into something usable. Extract the sender's real email headers, pull the destination bank account's registered name, timestamp every message in order.</div>
+          </div>
+          <div class="cycle-step" data-step="4">
+            <div class="cycle-num">STEP 4</div>
+            <h4>Analysis</h4>
+            <div class="cycle-detail">Make sense of it. The email header shows the message came from a look alike domain, not the real supplier. The receiving account was opened three weeks ago and has moved similar sums six times this month, a pattern of a mule account.</div>
+          </div>
+          <div class="cycle-step" data-step="5">
+            <div class="cycle-num">STEP 5</div>
+            <h4>Dissemination</h4>
+            <div class="cycle-detail">Share the findings with the people who can act. A report goes to the bank's fraud desk requesting an account freeze, and a case file goes to the EFCC with everything organised and dated.</div>
+          </div>
+          <div class="cycle-step" data-step="6">
+            <div class="cycle-num">STEP 6</div>
+            <h4>Feedback</h4>
+            <div class="cycle-detail">Learn from the outcome. Was the account frozen in time? What would have caught this faster? That lesson feeds directly back into Step 1 of the next case.</div>
+          </div>
+        </div>
+
+        <div class="callout next">
+          <b>Where this goes next.</b> Every phase of this program builds one part of this cycle. Phase 1 sharpens Collection through OSINT. Phase 2 sharpens Processing and evidence handling through forensics. Phase 6 sharpens Analysis through structured threat intelligence frameworks. By the capstone, you will run the full cycle yourself, start to finish.
+        </div>
+      </section>
+
+      <!-- ============ TAB 2: CASE FILES ============ -->
+      <section class="section" id="t2">
+        <div class="kicker">Real investigations, real outcomes</div>
+        <h2>Two Nigerian cases every investigator should know</h2>
+        <p class="lede">These are not hypothetical scenarios. Both men were real, both cases were prosecuted in United States federal courts, and both show exactly why this program teaches OSINT, forensics, financial tracing, and law together instead of as separate subjects.</p>
+
+        <div class="case-file">
+          <div class="case-file-head">
+            <div>
+              <span class="case-tag">CLOSED · SENTENCED</span>
+              <h3>The Hushpuppi Case</h3>
+              <div class="case-sub">Ramon Olorunwa Abbas, also known as "Ray Hushpuppi"</div>
+            </div>
+          </div>
+          <p>Ramon Abbas built a public image as a wealthy Dubai based businessman, posting photographs of private jets, luxury cars, and designer clothing to millions of Instagram followers. By his own account, he began as what is locally called a "Yahoo boy," a term for young Nigerians who run online fraud schemes. His operation grew far beyond simple scams into large scale money laundering for business email compromise fraud and cyber heists carried out by other criminal groups, reportedly including a scheme connected to North Korean state linked hackers who stole tens of millions of dollars from a bank in Malta and moved it through banks in Romania and Bulgaria.</p>
+          <p>He was arrested in Dubai in June 2020 following an FBI operation, extradited to the United States, and pleaded guilty in 2021 to conspiracy to commit money laundering. In November 2022, a federal judge in Los Angeles sentenced him to 135 months, just over 11 years, and ordered him to pay more than 1.7 million dollars in restitution to two of his victims. Prosecutors said that during just an 18 month window, he had conspired to launder over 300 million dollars.</p>
+          <div class="case-stats">
+            <div class="case-stat"><div class="num">11+ yrs</div><div class="lbl">FEDERAL SENTENCE</div></div>
+            <div class="case-stat"><div class="num">$300M+</div><div class="lbl">CONSPIRED TO LAUNDER, 18 MONTHS</div></div>
+            <div class="case-stat"><div class="num">$1.7M</div><div class="lbl">ORDERED IN RESTITUTION</div></div>
+          </div>
+          <div class="lesson-box">
+            <b>Why investigators study this case.</b> Abbas was not caught by a technical hack. He was caught by the same discipline this program teaches: OSINT investigators and the FBI built a profile from his own public social media activity, financial investigators traced money across multiple countries' banking systems, and international law enforcement cooperated across UAE, US, and other jurisdictions. His downfall proves that a criminal's own digital footprint is often the strongest evidence against him.
+          </div>
+        </div>
+
+        <div class="case-file">
+          <div class="case-file-head">
+            <div>
+              <span class="case-tag">CLOSED · SENTENCED</span>
+              <h3>The Invictus Obi Case</h3>
+              <div class="case-sub">Obinwanne Okeke, also known as "Invictus Obi"</div>
+            </div>
+          </div>
+          <p>Before his arrest, Obinwanne Okeke was one of the most celebrated young entrepreneurs in Nigeria, featured on the cover of Forbes Africa and named to its 30 Under 30 list. He ran a group of companies called Invictus Group, with claimed interests spanning oil and gas, agriculture, and technology. Underneath that public image, prosecutors found a business email compromise operation running from around 2015 to 2019 that caused approximately 11 million dollars in losses.</p>
+          <p>The most damaging single scheme targeted Unatrac Holding Limited, the export sales office for the heavy equipment company Caterpillar. In April 2018, one Unatrac executive opened a phishing email that looked legitimate and entered their login credentials into a fake page. That one moment gave the fraud ring access to the executive's real email account. From inside that account, the conspirators sent fraudulent wire transfer instructions and fake invoices to Unatrac's finance team, redirecting nearly 11 million dollars to accounts they controlled.</p>
+          <p>Okeke was arrested by the FBI at Dulles Airport in Virginia in August 2019, just before boarding a flight back to Nigeria after visiting the United States for the birth of his daughter. He pleaded guilty in 2020 and was sentenced in February 2021 to 10 years in federal prison.</p>
+          <div class="case-stats">
+            <div class="case-stat"><div class="num">1 email</div><div class="lbl">OPENED THE ENTIRE SCHEME</div></div>
+            <div class="case-stat"><div class="num">$11M</div><div class="lbl">TOTAL LOSSES CAUSED</div></div>
+            <div class="case-stat"><div class="num">10 yrs</div><div class="lbl">FEDERAL SENTENCE</div></div>
+          </div>
+          <div class="lesson-box">
+            <b>Why investigators study this case.</b> This case is a masterclass in how small a crack has to be. One phishing email, one distracted click, and a company lost 11 million dollars. It also teaches a harder lesson about assumptions: Okeke had fame, legitimate businesses, and public praise. A good investigator follows the evidence, not the reputation. Never let someone's public image talk you out of following a lead.
+          </div>
+        </div>
+
+        <div class="callout">
+          <b>What both cases have in common.</b> Nigerian nationals, business email compromise as the core method, an eventual arrest built on financial trails and digital evidence, and public social media activity or business dealings that gave investigators an opening. This is exactly the combination of OSINT, forensics, financial tracing, and legal process this program is built around.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Try it yourself: spot the red flags</h3>
+        <p class="lede" style="margin-bottom:14px;">Below is a fictionalised business email compromise message, built in the style of the Unatrac case. Click on anything that looks suspicious to see why it matters. Find all five flags.</p>
+
+        <div class="email-mock">
+          <div class="email-bar">INBOX &gt; Finance Team &gt; 1 unread message</div>
+          <div class="email-body">
+            <div class="email-row"><b>From:</b> <span class="email-hot" data-flag="1">accounts@untarac-holdings.com</span></div>
+            <div class="email-flag" id="emailFlag1">This domain reads almost like the real one, but the letters are swapped: "untarac" instead of "unatrac." This is called a lookalike or typosquatted domain, and it is one of the most common tricks in business email compromise. Always check the exact spelling of a sender's domain, letter by letter.</div>
+
+            <div class="email-row"><b>To:</b> finance@yourcompany.com</div>
+            <div class="email-row"><b>Subject:</b> <span class="email-hot" data-flag="2">URGENT: Updated payment details, action needed before close of business today</span></div>
+            <div class="email-flag" id="emailFlag2">Urgency and deadline pressure is deliberate. Fraudsters want you moving too fast to stop and verify. A genuine finance department rarely demands an irreversible wire transfer within hours.</div>
+
+            <div class="email-msg">
+              Hello team,<br><br>
+              Please note that our bank has changed our account details due to an ongoing audit. <span class="email-hot" data-flag="3">Kindly update your records to the new account below and process the outstanding invoice today</span>, as any delay will affect our delivery schedule.<br><br>
+              New Account Name: Unatrac Holdings Ltd<br>
+              <span class="email-hot" data-flag="4">New Account Number: 0041-778-2291, GreenTrust MFB</span><br><br>
+              <span class="email-hot" data-flag="5">Please do not call our office to confirm as our phone lines are affected by the audit. Reply to this email only.</span><br><br>
+              Regards,<br>Finance Department
+            </div>
+          </div>
+        </div>
+        <div class="email-flag" id="emailFlag3">This sentence does the real work of the scam, it instructs the reader to act on the new details embedded further down, wrapped in ordinary sounding business language. The instruction to act is buried inside a routine looking paragraph so it does not stand out on a first read.</div>
+        <div class="email-flag" id="emailFlag4">This is the actual fraudulent change, the one detail that redirects real money to the fraudster's account. Everything else in the email exists purely to make this one line look ordinary and get it actioned quickly.</div>
+        <div class="email-flag" id="emailFlag5">This line tries to cut off the exact safety check that would catch the fraud, calling a number you already had on file. Any message that discourages you from verifying through a channel you already trust should be treated as a serious warning sign on its own.</div>
+        <div class="flag-counter" id="flagCounter">Flags found: 0 / 5</div>
+
+        <div class="callout next" style="margin-top:20px;">
+          <b>The rule this teaches.</b> A changed bank account for an existing supplier is one of the single biggest red flags in fraud investigation. The correct response is always to verify the change through a phone number you already had on file before the email arrived, never a number or instruction inside the email itself.
+        </div>
+      </section>
+
+      <!-- ============ TAB 3: LAW & ETHICS ============ -->
+      <section class="section" id="t3">
+        <div class="kicker">The framework that protects you and your work</div>
+        <h2>Law and ethics, in plain language</h2>
+        <p class="lede">You cannot do this work well without understanding what the law actually permits, what it forbids, and where the ethical line sits even when the law is silent. Click each section open.</p>
+
+        <div class="acc-item" data-acc="1">
+          <div class="acc-head"><span>The Cybercrimes Act, what it actually covers</span><span class="chev">▶</span></div>
+          <div class="acc-body"><div class="acc-body-inner">
+            <p>The Cybercrimes (Prohibition, Prevention, etc.) Act 2015, as amended, is Nigeria's main law governing computer and internet based crime. You do not need to memorise it section by section, but you do need to know what it makes illegal, because those are the exact behaviours you will be investigating, and the exact behaviours you must never commit yourself, even accidentally, while practising.</p>
+            <ul>
+              <li>Unauthorised access to a computer system or network, sometimes called hacking, whether or not any damage is caused.</li>
+              <li>Cyberstalking and cyberbullying, including repeated unwanted digital contact intended to harass or intimidate.</li>
+              <li>Identity theft and impersonation carried out through electronic means.</li>
+              <li>Electronic fraud, which covers the business email compromise pattern you saw in Tab 2.</li>
+              <li>Child sexual abuse material offences, treated with the highest severity in the Act.</li>
+              <li>Cyberterrorism and critical infrastructure attacks.</li>
+            </ul>
+            <p>The law also sets out how evidence must be gathered and preserved for it to be admissible, including the need for proper court orders before certain kinds of access, and it names the bodies responsible for enforcement, principally the EFCC, the Nigeria Police Force, and NITDA in a supporting regulatory role.</p>
+          </div></div>
+        </div>
+
+        <div class="acc-item" data-acc="2">
+          <div class="acc-head"><span>The Nigeria Data Protection Act, what it means for you as an investigator</span><span class="chev">▶</span></div>
+          <div class="acc-body"><div class="acc-body-inner">
+            <p>The NDPA 2023 governs how personal data, meaning any information that identifies a living person, must be collected, stored, and used. As someone learning OSINT and forensics, you will be handling personal data constantly, even in practice exercises. Three things matter most for you right now.</p>
+            <ul>
+              <li>You need a lawful basis to process someone's personal data. In a legitimate investigation, that basis usually exists. In casual curiosity about someone you know, it usually does not.</li>
+              <li>Data must be collected for a specific purpose and not reused carelessly for something else. Information you gather for one case file does not become fair game for unrelated personal use.</li>
+              <li>People have rights over their own data, including the right to know it exists and, in many cases, the right to have it corrected or deleted. This is part of why SACS case data is never real, unconsented personal information, and why you will never practise on a real person without their explicit permission.</li>
+            </ul>
+          </div></div>
+        </div>
+
+        <div class="acc-item" data-acc="3">
+          <div class="acc-head"><span>Chain of custody, the idea you will hear constantly</span><span class="chev">▶</span></div>
+          <div class="acc-body"><div class="acc-body-inner">
+            <p>Chain of custody means being able to prove, step by step, exactly who touched a piece of evidence, when, and what they did to it, from the moment it was collected to the moment it is presented in court. If there is a gap in that chain, a defence lawyer can argue the evidence may have been altered, and the whole case can collapse, no matter how strong the evidence looked.</p>
+            <p>You will build full chain of custody skills in Phase 2. For now, just remember the principle: in this field, how you found something matters almost as much as what you found.</p>
+          </div></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Four ethical dilemmas, what would you actually do</h3>
+        <p class="lede" style="margin-bottom:16px;">Read each scenario and choose an answer. There is a clearly correct choice in every case, chosen to match the Code of Conduct you will sign this week.</p>
+
+        <div class="scenario" data-correct="b">
+          <div class="scenario-q"><b>Scenario 1.</b> While practising OSINT techniques for a class exercise, you accidentally find what looks like the real, current address of your ex partner. What do you do?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Save the address. It might be useful information to have someday.</div>
+            <div class="scenario-opt" data-choice="b">Close it out immediately and do not act on it. This is outside the scope of your authorised practice.</div>
+            <div class="scenario-opt" data-choice="c">Share it with a friend who has also had issues with this person.</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="scenario" data-correct="c">
+          <div class="scenario-q"><b>Scenario 2.</b> A friend outside the program asks you to "just check where this guy works" because they suspect he is a scammer. What do you do?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Help them out quickly, it seems harmless and you have the skills now.</div>
+            <div class="scenario-opt" data-choice="b">Do it, but only using tools from the program lab so it does not count as "real world."</div>
+            <div class="scenario-opt" data-choice="c">Decline, and if they have a genuine concern, point them toward reporting it through a proper channel like the bank or the EFCC.</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="scenario" data-correct="a">
+          <div class="scenario-q"><b>Scenario 3.</b> During a supervised dark web exercise, you land on a page that appears to contain child sexual abuse material. What is the very first thing you do?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Close the page immediately without saving, screenshotting, or scrolling further, then report it to your mentor the same day.</div>
+            <div class="scenario-opt" data-choice="b">Take a screenshot first as proof, then close it and report.</div>
+            <div class="scenario-opt" data-choice="c">Note the URL by keeping the tab open in the background so you do not lose it before reporting.</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="scenario" data-correct="b">
+          <div class="scenario-q"><b>Scenario 4.</b> You are building a case file for a mock investigation and realise one of the "practice" data points actually matches a real, identifiable person. What do you do?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Keep working, it is probably just a coincidence of names.</div>
+            <div class="scenario-opt" data-choice="b">Stop and report it to your mentor right away so the material can be reviewed and corrected.</div>
+            <div class="scenario-opt" data-choice="c">Quietly change the name in your own notes and continue.</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="callout">
+          <b>This week's requirement.</b> Before Phase 0 continues, you must read and sign the SACS Ethics and Acceptable Use Agreement. It covers everything in this tab in full legal language, plus the complete mandatory reporting protocol for CSAM and other critical incidents. Ask your mentor for the document if you have not received it yet.
+        </div>
+      </section>
+
+      <!-- ============ TAB 4: FIELD LAB ============ -->
+      <section class="section" id="t4">
+        <div class="kicker">Practice what you just learned</div>
+        <h2>Field lab</h2>
+        <p class="lede">Three short exercises. None of them need any software installed. All of them will sharpen what you just read.</p>
+
+        <h3>Exercise 1. Match the role to the responsibility</h3>
+        <p class="lede" style="margin-bottom:14px;">Drag each role on the left onto the responsibility on the right that matches it best.</p>
+
+        <div class="match-wrap">
+          <div class="match-col">
+            <h4>Drag from here</h4>
+            <div class="drag-item" draggable="true" data-match="m1">OSINT Analyst</div>
+            <div class="drag-item" draggable="true" data-match="m2">DFIR Examiner</div>
+            <div class="drag-item" draggable="true" data-match="m3">CTI Analyst</div>
+            <div class="drag-item" draggable="true" data-match="m4">Cybercrime Investigator</div>
+          </div>
+          <div class="match-col">
+            <h4>Drop here</h4>
+            <div class="drop-zone" data-answer="m1"><span class="placeholder">Builds a profile of a suspect using only public information</span></div>
+            <div class="drop-zone" data-answer="m2"><span class="placeholder">Recovers deleted files from a seized laptop with full chain of custody</span></div>
+            <div class="drop-zone" data-answer="m3"><span class="placeholder">Tracks a ransomware group's known tactics to warn a bank in advance</span></div>
+            <div class="drop-zone" data-answer="m4"><span class="placeholder">Coordinates the whole case and prepares the file for the EFCC</span></div>
+          </div>
+        </div>
+        <div id="matchStatus" class="mono" style="font-size:12.5px; color:var(--text-faint);"></div>
+
+        <div class="divider"></div>
+
+        <h3>Exercise 2. Week 1 knowledge check</h3>
+        <p class="lede" style="margin-bottom:14px;">Eight questions. Pick your answer and check it before moving to the next.</p>
+
+        <div id="quizWrap">
+          <div class="quiz-item" data-correct="c">
+            <div class="quiz-q">1. What is the main difference between an OSINT analyst and a DFIR examiner?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q1" value="a"> Nothing, they are the same job with a different name</label>
+              <label><input type="radio" name="q1" value="b"> DFIR analysts work only with cryptocurrency</label>
+              <label><input type="radio" name="q1" value="c"> OSINT works with public information, DFIR works with evidence recovered directly from devices</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+
+          <div class="quiz-item" data-correct="b">
+            <div class="quiz-q">2. In the intelligence cycle, which stage comes right after Collection?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q2" value="a"> Dissemination</label>
+              <label><input type="radio" name="q2" value="b"> Processing</label>
+              <label><input type="radio" name="q2" value="c"> Direction</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+
+          <div class="quiz-item" data-correct="a">
+            <div class="quiz-q">3. What ultimately led investigators to Ramon Abbas, in large part?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q3" value="a"> His own public social media activity, combined with international financial tracing</label>
+              <label><input type="radio" name="q3" value="b"> A confession he made voluntarily before any investigation began</label>
+              <label><input type="radio" name="q3" value="c"> A random hardware failure on his personal laptop</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+
+          <div class="quiz-item" data-correct="c">
+            <div class="quiz-q">4. In the Invictus Obi case, how did the fraud ring first gain access to Unatrac's systems?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q4" value="a"> They bribed an employee for the login details</label>
+              <label><input type="radio" name="q4" value="b"> They exploited a software vulnerability in the company firewall</label>
+              <label><input type="radio" name="q4" value="c"> An executive entered their credentials into a phishing page</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+
+          <div class="quiz-item" data-correct="b">
+            <div class="quiz-q">5. What is chain of custody mainly meant to protect?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q5" value="a"> The investigator's personal safety</label>
+              <label><input type="radio" name="q5" value="b"> The integrity and admissibility of evidence in court</label>
+              <label><input type="radio" name="q5" value="c"> The speed of the investigation</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+
+          <div class="quiz-item" data-correct="a">
+            <div class="quiz-q">6. Under the NDPA 2023, what do you need before processing someone's personal data?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q6" value="a"> A lawful basis for that specific purpose</label>
+              <label><input type="radio" name="q6" value="b"> Nothing, personal data is always fair to use once it is online</label>
+              <label><input type="radio" name="q6" value="c"> Only the person's first name</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+
+          <div class="quiz-item" data-correct="a">
+            <div class="quiz-q">7. If you inadvertently encounter suspected CSAM during a supervised exercise, what is the very first action?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q7" value="a"> Close it immediately without saving or sharing it, then report the same day</label>
+              <label><input type="radio" name="q7" value="b"> Screenshot it as evidence before closing the page</label>
+              <label><input type="radio" name="q7" value="c"> Continue browsing to understand the scale of the material first</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+
+          <div class="quiz-item" data-correct="c">
+            <div class="quiz-q">8. What made the fraudulent email in Tab 2's exercise easy to miss at first glance?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q8" value="a"> It came from a completely random, unrelated domain</label>
+              <label><input type="radio" name="q8" value="b"> It had no urgency or pressure at all</label>
+              <label><input type="radio" name="q8" value="c"> The domain name was a close lookalike of the real one</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+        </div>
+
+        <div class="quiz-submit-row">
+          <button class="btn" id="quizCheckAll">Check my answers</button>
+          <span class="quiz-score" id="quizScore"></span>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Exercise 3. Start your case notebook</h3>
+        <p class="lede" style="margin-bottom:14px;">Every investigator keeps notes. Answer these three prompts honestly. Your answers stay in your own browser and you can download them as a text file to keep for your records.</p>
+
+        <div class="notebook">
+          <label>1. Which of the four roles, OSINT, DFIR, CTI, or Cybercrime Investigator, appeals to you most right now, and why?</label>
+          <textarea id="note1" placeholder="Type your answer here..."></textarea>
+
+          <label>2. Look back at the Hushpuppi and Invictus Obi cases. What is one specific decision, made by an investigator, a bank, or a victim, that you think changed how the case unfolded?</label>
+          <textarea id="note2" placeholder="Type your answer here..."></textarea>
+
+          <label>3. Write your own definition of professional ethics in this field, in your own words, in two or three sentences.</label>
+          <textarea id="note3" placeholder="Type your answer here..."></textarea>
+
+          <button class="btn ghost" id="saveNotes">Save notes to this browser</button>
+          <button class="btn" id="downloadNotes" style="margin-left:10px;">Download as text file</button>
+          <span class="mono" id="noteStatus" style="font-size:12px; color:var(--text-faint); margin-left:10px;"></span>
+        </div>
+      </section>
+
+      <!-- ============ TAB 5: TASKS ============ -->
+      <section class="section" id="t5">
+        <div class="kicker">Before you move to Week 2</div>
+        <h2>This week's deliverables</h2>
+        <p class="lede">These match exactly what is listed in the syllabus for Phase 0, Week 1. Check each one off as you complete it. Your progress is saved automatically in this browser.</p>
+
+        <div class="task-row" data-task="1">
+          <input type="checkbox" class="task-check">
+          <div class="task-text">
+            <b>Sign the Ethics and Acceptable Use Agreement</b>
+            <span>Read the full document your mentor provided and return a signed copy before Week 2 begins. This is mandatory and non negotiable.</span>
+          </div>
+        </div>
+
+        <div class="task-row" data-task="2">
+          <input type="checkbox" class="task-check">
+          <div class="task-text">
+            <b>Write a one page reflection: why ethics matters in investigations</b>
+            <span>Use what you learned in Tab 3 and your own notebook answers from Tab 4 as a starting point. Submit it through your usual coursework channel.</span>
+          </div>
+        </div>
+
+        <div class="task-row" data-task="3">
+          <input type="checkbox" class="task-check">
+          <div class="task-text">
+            <b>Review one additional real prosecuted Nigerian cybercrime case</b>
+            <span>Find one case not covered in this resource, using a credible news source, and come prepared to summarise it in under two minutes at the next live session.</span>
+          </div>
+        </div>
+
+        <div class="task-row" data-task="4">
+          <input type="checkbox" class="task-check">
+          <div class="task-text">
+            <b>Complete all three field lab exercises in Tab 4</b>
+            <span>The matching game, the knowledge check quiz, and the case notebook. Bring your notebook download to the next session if your mentor asks for it.</span>
+          </div>
+        </div>
+
+        <div class="callout next">
+          <b>Looking ahead to Week 2.</b> Next week moves from theory into your hands. You will learn core networking concepts, get comfortable with the Linux command line, and set up the virtual machine you will use for the rest of the program. Come with your laptop charged and at least 20GB of free disk space.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============ SIDEBAR ============ -->
+    <div class="sidebar-col">
+      <div class="side-card">
+        <h3>Your progress</h3>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">0 of 5 sections viewed</div>
+      </div>
+
+      <div class="side-card">
+        <h3>Week 1 glossary</h3>
+        <div id="glossaryList">
+          <div class="glossary-item">
+            <div class="glossary-term">OSINT <span class="plus">+</span></div>
+            <div class="glossary-def">Open Source Intelligence. Information gathered from publicly available sources, no hacking or unauthorised access involved.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">DFIR <span class="plus">+</span></div>
+            <div class="glossary-def">Digital Forensics and Incident Response. Recovering and analysing evidence directly from devices and systems.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">CTI <span class="plus">+</span></div>
+            <div class="glossary-def">Cyber Threat Intelligence. Studying attacker patterns and infrastructure to predict and prevent future incidents.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">BEC <span class="plus">+</span></div>
+            <div class="glossary-def">Business Email Compromise. Fraud carried out by impersonating a trusted business contact through email, usually to redirect a payment.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Chain of custody <span class="plus">+</span></div>
+            <div class="glossary-def">A documented, unbroken record of who handled a piece of evidence, when, and what they did to it.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">NDPA <span class="plus">+</span></div>
+            <div class="glossary-def">Nigeria Data Protection Act 2023. Governs how personal data must be collected, used, and protected.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Quick checklist</h3>
+        <div class="checklist-item"><input type="checkbox" id="cl1"><label for="cl1">Read all five tabs</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl2"><label for="cl2">Tried the red flag email exercise</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl3"><label for="cl3">Completed the matching game</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl4"><label for="cl4">Finished the knowledge check quiz</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl5"><label for="cl5">Wrote all three notebook answers</label></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  SACS · Cyber Intelligence &amp; Investigations Professional Track · Week 1 of 26 · Built for live, shared screen teaching
+</footer>
+
+<script>
+// ---------- TAB SWITCHING ----------
+const tabBtns = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('.section');
+let viewedTabs = new Set(['t1']);
+
+function updateProgress(){
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  const pct = Math.round((viewedTabs.size / 5) * 100);
+  fill.style.width = pct + '%';
+  label.textContent = viewedTabs.size + ' of 5 sections viewed';
+  try{ localStorage.setItem('sacs_wk1_viewed', JSON.stringify([...viewedTabs])); }catch(e){}
+}
+
+tabBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.getAttribute('data-tab');
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    sections.forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+    viewedTabs.add(id);
+    updateProgress();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+try{
+  const saved = JSON.parse(localStorage.getItem('sacs_wk1_viewed') || '["t1"]');
+  saved.forEach(t=>viewedTabs.add(t));
+}catch(e){}
+updateProgress();
+
+// ---------- GLOSSARY ----------
+document.querySelectorAll('.glossary-item').forEach(item=>{
+  item.addEventListener('click', ()=> item.classList.toggle('open'));
+});
+
+// ---------- ROLE CARDS ----------
+document.querySelectorAll('.role-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    const wasOpen = card.classList.contains('open');
+    document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('open'));
+    if(!wasOpen) card.classList.add('open');
+  });
+});
+
+// ---------- CYCLE STEPS ----------
+document.querySelectorAll('.cycle-step').forEach(step=>{
+  step.addEventListener('click', ()=>{
+    const wasOpen = step.classList.contains('open');
+    document.querySelectorAll('.cycle-step').forEach(s=>s.classList.remove('open'));
+    if(!wasOpen) step.classList.add('open');
+  });
+});
+
+// ---------- EMAIL RED FLAGS ----------
+let flagsFound = new Set();
+document.querySelectorAll('.email-hot').forEach(hot=>{
+  hot.addEventListener('click', ()=>{
+    hot.classList.add('found');
+    const n = hot.getAttribute('data-flag');
+    flagsFound.add(n);
+    const box = document.getElementById('emailFlag' + n);
+    if(box) box.classList.add('show');
+    document.getElementById('flagCounter').textContent = 'Flags found: ' + flagsFound.size + ' / 5';
+    if(flagsFound.size === 5){
+      document.getElementById('flagCounter').textContent += '. All flags found. Well spotted.';
+    }
+  });
+});
+
+// ---------- ACCORDION (law) ----------
+document.querySelectorAll('.acc-item').forEach(acc=>{
+  acc.querySelector('.acc-head').addEventListener('click', ()=>{
+    acc.classList.toggle('open');
+  });
+});
+
+// ---------- ETHICS SCENARIOS ----------
+document.querySelectorAll('.scenario').forEach(scenario=>{
+  const correct = scenario.getAttribute('data-correct');
+  const opts = scenario.querySelectorAll('.scenario-opt');
+  const fb = scenario.querySelector('.scenario-fb');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(scenario.classList.contains('answered')) return;
+      scenario.classList.add('answered');
+      const choice = opt.getAttribute('data-choice');
+      opts.forEach(o=>{
+        if(o.getAttribute('data-choice') === correct) o.classList.add('correct');
+        else if(o === opt) o.classList.add('wrong');
+      });
+      if(choice === correct){
+        fb.textContent = 'Correct. This matches the standard set in the Code of Conduct and the Ethics Agreement you will sign this week.';
+      } else {
+        fb.textContent = 'Not quite the safest choice here. The highlighted option in green is the one that matches the Code of Conduct. Take a moment to think through why.';
+      }
+    });
+  });
+});
+
+// ---------- MATCHING GAME ----------
+const dragItems = document.querySelectorAll('.drag-item');
+const dropZones = document.querySelectorAll('.drop-zone');
+let matchCorrectCount = 0;
+
+dragItems.forEach(item=>{
+  item.addEventListener('dragstart', e=>{
+    e.dataTransfer.setData('text/plain', item.getAttribute('data-match'));
+  });
+});
+
+dropZones.forEach(zone=>{
+  zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', ()=> zone.classList.remove('over'));
+  zone.addEventListener('drop', e=>{
+    e.preventDefault();
+    zone.classList.remove('over');
+    if(zone.classList.contains('filled')) return;
+    const val = e.dataTransfer.getData('text/plain');
+    const answer = zone.getAttribute('data-answer');
+    const draggedEl = document.querySelector('[data-match="'+val+'"]');
+    if(val === answer){
+      zone.classList.add('filled');
+      const labelText = zone.querySelector('.placeholder').textContent;
+      zone.innerHTML = '<span style="color:#5FBF7A; font-weight:600;">' + String.fromCharCode(10003) + ' ' + draggedEl.textContent + '</span>, ' + labelText;
+      draggedEl.classList.add('placed');
+      draggedEl.setAttribute('draggable','false');
+      matchCorrectCount++;
+      document.getElementById('matchStatus').textContent = matchCorrectCount + ' of 4 matched correctly.';
+      if(matchCorrectCount === 4){
+        document.getElementById('matchStatus').textContent += '  All matched. Nicely done.';
+      }
+    } else {
+      zone.style.borderColor = '#E2574C';
+      setTimeout(()=>{ zone.style.borderColor = ''; }, 500);
+    }
+  });
+});
+// touch/mobile fallback: tap item then tap zone
+let selectedDrag = null;
+dragItems.forEach(item=>{
+  item.addEventListener('click', ()=>{
+    if(item.classList.contains('placed')) return;
+    document.querySelectorAll('.drag-item').forEach(i=>i.style.outline='none');
+    selectedDrag = item;
+    item.style.outline = '2px solid #39C6B8';
+  });
+});
+dropZones.forEach(zone=>{
+  zone.addEventListener('click', ()=>{
+    if(!selectedDrag || zone.classList.contains('filled')) return;
+    const val = selectedDrag.getAttribute('data-match');
+    const answer = zone.getAttribute('data-answer');
+    if(val === answer){
+      zone.classList.add('filled');
+      const labelText = zone.querySelector('.placeholder').textContent;
+      zone.innerHTML = '<span style="color:#5FBF7A; font-weight:600;">' + String.fromCharCode(10003) + ' ' + selectedDrag.textContent + '</span>, ' + labelText;
+      selectedDrag.classList.add('placed');
+      matchCorrectCount++;
+      document.getElementById('matchStatus').textContent = matchCorrectCount + ' of 4 matched correctly.';
+    }
+    selectedDrag = null;
+  });
+});
+
+// ---------- QUIZ ----------
+document.getElementById('quizCheckAll').addEventListener('click', ()=>{
+  let correctCount = 0;
+  const items = document.querySelectorAll('.quiz-item');
+  items.forEach(item=>{
+    const name = item.querySelector('input[type=radio]').name;
+    const checked = item.querySelector('input[name="'+name+'"]:checked');
+    const correct = item.getAttribute('data-correct');
+    const resultBox = item.querySelector('.quiz-result');
+    item.classList.add('answered');
+    if(!checked){
+      resultBox.textContent = 'No answer selected. Pick one to see feedback.';
+      item.classList.remove('correct','incorrect');
+      return;
+    }
+    if(checked.value === correct){
+      correctCount++;
+      item.classList.add('correct'); item.classList.remove('incorrect');
+      resultBox.textContent = 'Correct.';
+    } else {
+      item.classList.add('incorrect'); item.classList.remove('correct');
+      resultBox.textContent = 'Not quite. Review this section of the resource before the next live session.';
+    }
+  });
+  const scoreEl = document.getElementById('quizScore');
+  scoreEl.textContent = 'Score: ' + correctCount + ' / ' + items.length;
+  try{ localStorage.setItem('sacs_wk1_quiz_score', correctCount + '/' + items.length); }catch(e){}
+});
+
+// ---------- NOTEBOOK ----------
+try{
+  ['note1','note2','note3'].forEach(id=>{
+    const saved = localStorage.getItem('sacs_wk1_' + id);
+    if(saved) document.getElementById(id).value = saved;
+  });
+}catch(e){}
+
+document.getElementById('saveNotes').addEventListener('click', ()=>{
+  try{
+    ['note1','note2','note3'].forEach(id=>{
+      localStorage.setItem('sacs_wk1_' + id, document.getElementById(id).value);
+    });
+    document.getElementById('noteStatus').textContent = 'Saved to this browser.';
+  }catch(e){
+    document.getElementById('noteStatus').textContent = 'Could not save. Copy your answers manually to be safe.';
+  }
+});
+
+document.getElementById('downloadNotes').addEventListener('click', ()=>{
+  const n1 = document.getElementById('note1').value || '(no answer given)';
+  const n2 = document.getElementById('note2').value || '(no answer given)';
+  const n3 = document.getElementById('note3').value || '(no answer given)';
+  const content = 'SACS CII PROGRAM, WEEK 1 CASE NOTEBOOK\n' +
+    '========================================\n\n' +
+    '1. Which role appeals to you most, and why?\n' + n1 + '\n\n' +
+    '2. A decision that changed how a case unfolded:\n' + n2 + '\n\n' +
+    '3. Your own definition of professional ethics in this field:\n' + n3 + '\n';
+  const blob = new Blob([content], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'week01-case-notebook.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ---------- TASK CHECKLIST ----------
+document.querySelectorAll('.task-row').forEach(row=>{
+  const cb = row.querySelector('.task-check');
+  const id = 'sacs_wk1_task_' + row.getAttribute('data-task');
+  try{
+    if(localStorage.getItem(id) === 'true'){ cb.checked = true; row.classList.add('done'); }
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    row.classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+
+// ---------- SIDEBAR QUICK CHECKLIST ----------
+document.querySelectorAll('.checklist-item input').forEach(cb=>{
+  const id = 'sacs_wk1_' + cb.id;
+  try{
+    if(localStorage.getItem(id) === 'true'){
+      cb.checked = true;
+      cb.closest('.checklist-item').classList.add('done');
+    }
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    cb.closest('.checklist-item').classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+</script>
+
+</body>
+</html>
