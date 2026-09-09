@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 02 Case File: The Internet's Map | SACS Cyber Intelligence &amp; Investigations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1319;
+    --panel:#171E27;
+    --panel-alt:#1D2631;
+    --panel-raise:#232E3A;
+    --line:#2C3846;
+    --line-soft:#212B36;
+    --text:#E8ECF1;
+    --text-dim:#9AAABB;
+    --text-faint:#65798D;
+    --amber:#E3A73A;
+    --amber-dim:#8A6A2C;
+    --teal:#39C6B8;
+    --teal-dim:#1F6E66;
+    --red:#E2574C;
+    --red-dim:#6E2A25;
+    --green:#5FBF7A;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-dim); color:#fff;}
+  a{color:var(--teal);}
+  h1,h2,h3,h4{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin:0 0 0.5em 0;
+    color:#fff;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  p{margin:0 0 1em 0;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 22px;}
+
+  /* ===== TOP BAR ===== */
+  .topbar{
+    background:linear-gradient(180deg, #131922 0%, #10151C 100%);
+    border-bottom:1px solid var(--line);
+    padding:18px 0 0 0;
+    position:sticky; top:0; z-index:50;
+  }
+  .topbar-inner{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:20px; padding-bottom:16px; flex-wrap:wrap;
+  }
+  .brand-block{display:flex; align-items:center; gap:16px;}
+  .stamp{
+    border:2.5px solid var(--amber);
+    color:var(--amber);
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:0.09em;
+    padding:7px 12px;
+    border-radius:4px;
+    transform:rotate(-4deg);
+    text-align:center;
+    line-height:1.3;
+    white-space:nowrap;
+    background:rgba(227,167,58,0.06);
+  }
+  .stamp .stamp-big{font-size:17px; display:block;}
+  .brand-text .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--teal);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    margin-bottom:3px;
+  }
+  .brand-text h1{font-size:26px; margin:0;}
+  .brand-text .sub{color:var(--text-dim); font-size:14px; margin-top:2px;}
+  .meta-strip{
+    display:flex; gap:22px; font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; color:var(--text-faint); flex-wrap:wrap;
+  }
+  .meta-strip span{margin-right:22px; margin-bottom:4px; display:inline-block;}
+  .meta-strip span b{color:var(--text-dim); font-weight:600;}
+
+  /* ===== TABS ===== */
+  .tabs{
+    display:flex; gap:4px; margin-top:18px; overflow-x:auto;
+    padding-bottom:0;
+  }
+  .tab-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:var(--panel-alt);
+    color:var(--text-dim);
+    border:1px solid var(--line);
+    border-bottom:none;
+    padding:11px 18px;
+    border-radius:8px 8px 0 0;
+    cursor:pointer;
+    white-space:nowrap;
+    position:relative;
+    top:1px;
+    transition:background .15s, color .15s;
+  }
+  .tab-btn:hover{background:var(--panel-raise); color:var(--text);}
+  .tab-btn.active{
+    background:var(--panel);
+    color:#fff;
+    border-color:var(--line);
+    border-bottom:1px solid var(--panel);
+  }
+  .tab-btn .tag-num{color:var(--amber); margin-right:7px;}
+
+  /* ===== LAYOUT ===== */
+  .layout{
+    display:flex;
+    gap:22px;
+    padding:26px 0 60px 0;
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+  .layout > .panel{flex:1 1 620px; min-width:0;}
+  .layout > .sidebar-col{flex:0 0 300px; width:300px;}
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:0 var(--radius) var(--radius) var(--radius);
+    padding:34px;
+    min-height:420px;
+  }
+  .section{display:none;}
+  .section.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .kicker{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--amber);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .section h2{font-size:26px; margin-bottom:6px;}
+  .lede{color:var(--text-dim); font-size:16px; max-width:740px; margin-bottom:26px;}
+  .divider{height:1px; background:var(--line-soft); margin:30px 0;}
+
+  /* ===== SIDEBAR ===== */
+  .side-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .side-card h3{font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:var(--teal); font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  .progress-track{
+    background:var(--line-soft); border-radius:20px; height:8px; overflow:hidden; margin:12px 0 6px 0;
+  }
+  .progress-fill{
+    background:linear-gradient(90deg, var(--teal-dim), var(--teal));
+    height:100%; width:0%; transition:width .4s ease; border-radius:20px;
+  }
+  .progress-label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint);}
+  .glossary-item{border-bottom:1px dashed var(--line-soft); padding:9px 0; cursor:pointer;}
+  .glossary-item:last-child{border-bottom:none;}
+  .glossary-term{font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600; color:var(--text); display:flex; justify-content:space-between; align-items:center;}
+  .glossary-term .plus{color:var(--teal); font-size:15px;}
+  .glossary-def{font-size:13px; color:var(--text-dim); margin-top:6px; display:none; line-height:1.5;}
+  .glossary-item.open .glossary-def{display:block;}
+  .glossary-item.open .plus{transform:rotate(45deg); display:inline-block;}
+
+  .checklist-item{display:flex; align-items:flex-start; gap:9px; margin-bottom:10px; font-size:13.5px; color:var(--text-dim);}
+  .checklist-item input{margin-top:3px; accent-color:var(--teal); width:15px; height:15px; cursor:pointer;}
+  .checklist-item.done label{color:var(--text-faint); text-decoration:line-through;}
+
+  /* ===== CALLOUTS ===== */
+  .callout{border:1px solid var(--amber-dim); background:rgba(227,167,58,0.07); border-radius:8px; padding:16px 18px; margin:20px 0; font-size:14px; color:var(--text-dim);}
+  .callout b{color:var(--amber);}
+  .callout.next{border-color:var(--teal-dim); background:rgba(57,198,184,0.06);}
+  .callout.next b{color:var(--teal);}
+  .callout.warn{border-color:var(--red-dim); background:rgba(226,87,76,0.07);}
+  .callout.warn b{color:var(--red);}
+
+  /* ===== IP ANATOMY ===== */
+  .ip-display{display:flex; gap:8px; margin:22px 0 10px 0; flex-wrap:wrap;}
+  .ip-octet{
+    background:var(--panel-alt); border:1.5px solid var(--line); border-radius:8px;
+    padding:14px 20px; cursor:pointer; text-align:center; transition:border-color .15s;
+  }
+  .ip-octet:hover, .ip-octet.open{border-color:var(--teal);}
+  .ip-octet .val{font-family:'IBM Plex Mono', monospace; font-size:22px; font-weight:600; color:#fff;}
+  .ip-octet .dot{font-family:'IBM Plex Mono', monospace; font-size:22px; color:var(--text-faint); align-self:center;}
+  .ip-detail{display:none; background:var(--panel-alt); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-top:10px; font-size:13.5px; color:var(--text-dim);}
+  .ip-detail.show{display:block;}
+
+  .range-table{width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px;}
+  .range-table th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line);}
+  .range-table td{padding:10px; border-bottom:1px solid var(--line-soft); color:var(--text-dim);}
+  .range-table td.mono-cell{font-family:'IBM Plex Mono',monospace; color:var(--teal);}
+
+  /* ===== DNS CYCLE ===== */
+  .cycle-wrap{display:flex; gap:16px; overflow-x:auto; padding:10px 4px 18px 4px;}
+  .cycle-wrap .cycle-step{margin-right:16px;}
+  .cycle-step{
+    flex:0 0 158px; background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px; cursor:pointer; position:relative;
+  }
+  .cycle-step:not(:last-child)::after{content:'\2192'; position:absolute; right:-20px; top:50%; transform:translateY(-50%); color:var(--text-faint); font-size:16px;}
+  .cycle-step.open{border-color:var(--amber); background:var(--panel-raise);}
+  .cycle-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--amber);}
+  .cycle-step h4{font-size:13px; margin:6px 0 0 0;}
+  .cycle-detail{display:none; font-size:12px; color:var(--text-dim); margin-top:8px;}
+  .cycle-step.open .cycle-detail{display:block;}
+
+  /* ===== MATCHING GAME ===== */
+  .match-wrap{display:flex; gap:30px; margin:20px 0; flex-wrap:wrap;}
+  .match-wrap .match-col{flex:1 1 260px; min-width:240px;}
+  .match-col h4{font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; margin-bottom:12px;}
+  .drag-item{background:var(--panel-raise); border:1px solid var(--line); border-radius:7px; padding:11px 14px; margin-bottom:10px; cursor:grab; font-size:13.5px; font-family:'IBM Plex Mono', monospace; color:var(--teal);}
+  .drag-item.placed{opacity:0.35; cursor:default;}
+  .drop-zone{background:var(--panel-alt); border:1.5px dashed var(--line); border-radius:7px; padding:11px 14px; margin-bottom:10px; min-height:44px; font-size:13px; color:var(--text-dim); display:flex; align-items:center;}
+  .drop-zone.filled{border-style:solid; border-color:var(--green); background:rgba(95,191,122,0.06);}
+  .drop-zone.over{border-color:var(--teal);}
+  .drop-zone .placeholder{color:var(--text-faint); font-style:italic;}
+
+  /* ===== TERMINAL ===== */
+  .terminal{
+    background:#0A0D10; border:1px solid #2A3543; border-radius:10px; overflow:hidden; margin:20px 0;
+    box-shadow:0 8px 30px rgba(0,0,0,0.35);
+  }
+  .term-bar{
+    background:#161C24; padding:9px 14px; display:flex; align-items:center; gap:8px;
+    border-bottom:1px solid #2A3543;
+  }
+  .term-dot{width:11px; height:11px; border-radius:50%; display:inline-block;}
+  .term-title{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-faint); margin-left:8px;}
+  .term-body{padding:16px; font-family:'IBM Plex Mono', monospace; font-size:13.5px; color:#B7F5D8; height:340px; overflow-y:auto;}
+  .term-line{margin-bottom:4px; white-space:pre-wrap; line-height:1.55;}
+  .term-line .prompt{color:var(--teal);}
+  .term-line .cmd{color:#fff;}
+  .term-line .out{color:#9AAABB;}
+  .term-line .err{color:var(--red);}
+  .term-input-row{display:flex; align-items:center; padding:0 16px 16px 16px;}
+  .term-input-row .prompt{color:var(--teal); font-family:'IBM Plex Mono',monospace; font-size:13.5px; margin-right:6px;}
+  .term-input{
+    flex:1; background:transparent; border:none; outline:none; color:#fff;
+    font-family:'IBM Plex Mono', monospace; font-size:13.5px;
+  }
+  .term-hint{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-faint); margin-top:-8px; margin-bottom:16px;}
+  .term-chips{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 20px 0;}
+  .term-chip{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; background:var(--panel-alt); border:1px solid var(--line);
+    color:var(--teal); padding:6px 11px; border-radius:20px; cursor:pointer;
+  }
+  .term-chip:hover{border-color:var(--teal);}
+
+  /* ===== COMMAND TABLE ===== */
+  .cmd-table{width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px;}
+  .cmd-table th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line);}
+  .cmd-table td{padding:10px; border-bottom:1px solid var(--line-soft); color:var(--text-dim); vertical-align:top;}
+  .cmd-table td.cmd-cell{font-family:'IBM Plex Mono',monospace; color:var(--teal); white-space:nowrap;}
+
+  /* ===== WHOIS BLOCK ===== */
+  .whois-panel{background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:22px; margin:18px 0;}
+  .whois-lookup-bar{display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+  .whois-lookup-bar input{
+    flex:1; min-width:220px; background:var(--panel); border:1px solid var(--line); border-radius:7px;
+    padding:11px 14px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13.5px;
+  }
+  .whois-output{
+    display:none; background:#0A0D10; border:1px solid #2A3543; border-radius:8px; padding:18px;
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:#B7F5D8; line-height:1.9;
+  }
+  .whois-output.show{display:block;}
+  .whois-line{white-space:pre-wrap;}
+  .whois-hot{cursor:pointer; border-bottom:1px dotted var(--amber); color:#fff;}
+  .whois-hot.found{background:rgba(227,167,58,0.15); border-bottom:1px solid var(--amber);}
+  .whois-flag{display:none; background:var(--panel); border-left:3px solid var(--amber); color:var(--text-dim); font-family:'IBM Plex Sans',sans-serif; font-size:13px; padding:10px 13px; border-radius:0 6px 6px 0; margin:6px 0 10px 0;}
+  .whois-flag.show{display:block;}
+  .flag-counter{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--amber); margin-top:12px;}
+
+  /* ===== STEP CARDS (VM setup) ===== */
+  .step-card{background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px; display:flex; gap:16px;}
+  .step-num{
+    flex-shrink:0; width:34px; height:34px; border-radius:50%; background:var(--amber); color:var(--ink);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:14px;
+  }
+  .step-card h4{font-size:15px; margin-bottom:5px;}
+  .step-card p{font-size:13.5px; color:var(--text-dim); margin-bottom:0;}
+
+  /* ===== QUIZ ===== */
+  .quiz-item{margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--line-soft);}
+  .quiz-item:last-child{border-bottom:none;}
+  .quiz-q{font-size:14.5px; font-weight:600; margin-bottom:10px; color:#fff;}
+  .quiz-opts label{display:block; background:var(--panel-alt); border:1px solid var(--line); border-radius:7px; padding:10px 14px; margin-bottom:8px; font-size:13.5px; cursor:pointer; color:var(--text-dim);}
+  .quiz-opts label:hover{border-color:var(--teal-dim);}
+  .quiz-opts input{margin-right:9px; accent-color:var(--teal);}
+  .quiz-result{display:none; font-size:13px; padding:10px 13px; border-radius:6px; margin-top:6px;}
+  .quiz-item.answered .quiz-result{display:block;}
+  .quiz-item.correct .quiz-result{background:rgba(95,191,122,0.1); border-left:3px solid var(--green); color:var(--text);}
+  .quiz-item.incorrect .quiz-result{background:rgba(226,87,76,0.1); border-left:3px solid var(--red); color:var(--text);}
+  .quiz-submit-row{display:flex; align-items:center; gap:16px; margin-top:10px;}
+  .btn{font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.03em; background:var(--teal); color:#08201D; border:none; padding:11px 22px; border-radius:7px; cursor:pointer; font-weight:600; transition:background .15s;}
+  .btn:hover{background:#4FDBCB;}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--text-dim);}
+  .btn.ghost:hover{border-color:var(--teal); color:var(--teal);}
+  .quiz-score{font-family:'IBM Plex Mono', monospace; font-size:14px; color:var(--amber);}
+
+  /* ===== TASKS ===== */
+  .task-row{display:flex; align-items:flex-start; gap:14px; background:var(--panel-alt); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:12px;}
+  .task-check{margin-top:2px; width:18px; height:18px; accent-color:var(--teal); cursor:pointer; flex-shrink:0;}
+  .task-text b{display:block; font-size:14.5px; color:#fff; margin-bottom:3px;}
+  .task-text span{font-size:13px; color:var(--text-dim);}
+  .task-row.done .task-text b, .task-row.done .task-text span{color:var(--text-faint); text-decoration:line-through;}
+
+  footer{border-top:1px solid var(--line); padding:24px 0 40px 0; text-align:center; color:var(--text-faint); font-size:12.5px; font-family:'IBM Plex Mono', monospace;}
+
+  @media (max-width:880px){
+    .layout > .sidebar-col{flex-basis:100%; width:100%;}
+    .ip-display{justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-inner">
+      <div class="brand-block">
+        <div class="stamp">CASE FILE<span class="stamp-big">WK 02</span></div>
+        <div class="brand-text">
+          <div class="eyebrow">SACS &middot; Cyber Intelligence &amp; Investigations Professional Track</div>
+          <h1>The Internet's Map, Week 2</h1>
+          <div class="sub">Networking fundamentals, reading WHOIS and DNS, the Linux command line, and setting up your lab</div>
+        </div>
+      </div>
+      <div class="meta-strip">
+        <span><b>Phase:</b> 0 of 7</span>
+        <span><b>Runtime:</b> approx 3 hours</span>
+        <span><b>Format:</b> read, click, type, try</span>
+      </div>
+    </div>
+    <div class="tabs" id="tabBar">
+      <button class="tab-btn active" data-tab="t1"><span class="tag-num">01</span>Orientation</button>
+      <button class="tab-btn" data-tab="t2"><span class="tag-num">02</span>Networks &amp; DNS</button>
+      <button class="tab-btn" data-tab="t3"><span class="tag-num">03</span>WHOIS Investigation</button>
+      <button class="tab-btn" data-tab="t4"><span class="tag-num">04</span>Linux Terminal</button>
+      <button class="tab-btn" data-tab="t5"><span class="tag-num">05</span>Build Your Lab</button>
+      <button class="tab-btn" data-tab="t6"><span class="tag-num">06</span>This Week's Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="layout">
+
+    <div class="panel">
+
+      <!-- ============ TAB 1: ORIENTATION ============ -->
+      <section class="section active" id="t1">
+        <div class="kicker">Foundations continue</div>
+        <h2>Why an investigator needs to understand networks</h2>
+        <p class="lede">Last week you met the four roles and the intelligence cycle. This week you learn the plumbing underneath all of it, because every single lead you will ever chase, an email, a phone, a website, a bank transfer, travels across the same basic infrastructure you are about to learn to read.</p>
+
+        <p>Here is a fact that surprises most beginners. You do not need to be a network engineer to investigate cybercrime well. You need something narrower and more practical: you need to be able to look at an IP address, a domain name, or a piece of network traffic and immediately understand what it is telling you, and just as importantly, what it is not telling you.</p>
+
+        <p>That second half matters more than people expect. A huge number of wrongful accusations in this field come from someone treating an IP address as proof of identity, when in reality an IP address is closer to a partial car number plate glimpsed in the rain. It narrows things down. It does not name a suspect on its own. You will see exactly why later in this resource.</p>
+
+        <div class="callout">
+          <b>What you will walk away with today.</b> A working mental model of how IP addresses, DNS, and ports fit together, hands on practice reading a real style WHOIS record for red flags, comfort typing real Linux commands in a safe simulated terminal, and a clear plan for building the virtual machine you will use for the rest of the program.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>The story that runs through this whole resource</h3>
+        <p>In Week 1 you read about the phishing email built in the style of the real Unatrac case, sent from the lookalike domain <span class="mono" style="color:var(--teal);">untarac-holdings.com</span>. We are going to keep following that exact domain today. You will use WHOIS and DNS tools to investigate it the way a real analyst would, then use the Linux terminal to run some of the same lookups yourself. By the end of this resource, a domain name will not look like a random string of letters to you anymore. It will look like a set of clues.</p>
+
+        <div class="callout next">
+          <b>A quick honesty note.</b> The specific WHOIS and DNS records you will see in Tab 3 are built for teaching purposes, styled closely on how real registrar records actually look, so that when you run these same lookups on your own machine later, nothing about the format surprises you.
+        </div>
+      </section>
+
+      <!-- ============ TAB 2: NETWORKS & DNS ============ -->
+      <section class="section" id="t2">
+        <div class="kicker">The building blocks</div>
+        <h2>IP addresses, DNS, and ports</h2>
+        <p class="lede">Three ideas carry almost all of the networking knowledge you need for this field. Click through each one below.</p>
+
+        <h3>1. IP addresses: the internet's postal address system</h3>
+        <p>Every device connected to the internet needs an address so that data knows where to go, in the same way a letter needs a house address. That address is called an IP address. Click each part of the address below to see what it actually tells an investigator.</p>
+
+        <div class="ip-display" id="ipDisplay">
+          <div class="ip-octet" data-oct="1"><div class="val">102</div></div>
+          <div class="ip-octet" data-oct="dot1"><div class="dot">.</div></div>
+          <div class="ip-octet" data-oct="2"><div class="val">89</div></div>
+          <div class="ip-octet" data-oct="dot2"><div class="dot">.</div></div>
+          <div class="ip-octet" data-oct="3"><div class="val">44</div></div>
+          <div class="ip-octet" data-oct="dot3"><div class="dot">.</div></div>
+          <div class="ip-octet" data-oct="4"><div class="val">17</div></div>
+        </div>
+        <div class="ip-detail" id="ipDetail1">Click one of the number blocks above to see what that part of an IPv4 address can tell an investigator.</div>
+
+        <p style="margin-top:18px;">This particular style of address, four numbers separated by dots, each between 0 and 255, is called IPv4, and it is still the most common format you will encounter. A newer, much longer format called IPv6 also exists and is becoming more common, but the reading skills are the same.</p>
+
+        <div class="callout warn">
+          <b>The single most important lesson in this whole section.</b> Because of a technology called NAT, short for Network Address Translation, one public IP address can represent dozens, hundreds, or with mobile networks sometimes thousands of different people at once. A Nigerian mobile network provider might route enormous numbers of customers through a small handful of public IP addresses using a technique called CGNAT. This is exactly why an IP address alone is treated as a lead, never as proof. Real attribution needs a subpoena to the internet provider asking who held that specific IP at that specific second, matched against their internal logs.
+        </div>
+
+        <table class="range-table">
+          <tr><th>Address range</th><th>What it means</th></tr>
+          <tr><td class="mono-cell">10.0.0.0 to 10.255.255.255</td><td>A private range. Used inside a home or office network, never visible directly from the public internet.</td></tr>
+          <tr><td class="mono-cell">192.168.0.0 to 192.168.255.255</td><td>Also private. The range you have almost certainly seen on your own home router's settings page.</td></tr>
+          <tr><td class="mono-cell">Everything else</td><td>Generally public and routable, meaning it can be reached from anywhere on the internet, and can usually be traced to a specific internet provider and rough geographic region.</td></tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <h3>2. DNS: the phonebook that hides behind every website name</h3>
+        <p>Nobody wants to type a string of numbers to visit a website, so the Domain Name System, DNS, exists to translate a human friendly name like a company's website into the IP address a computer actually needs. Click through the six steps below to see what really happens the moment you type a web address and press enter.</p>
+
+        <div class="cycle-wrap" id="dnsCycle">
+          <div class="cycle-step" data-step="1"><div class="cycle-num">STEP 1</div><h4>You type it</h4><div class="cycle-detail">You type unatrac.com into your browser and press enter. Your computer has no idea what IP address that is yet.</div></div>
+          <div class="cycle-step" data-step="2"><div class="cycle-num">STEP 2</div><h4>Resolver asked</h4><div class="cycle-detail">Your computer asks a DNS resolver, usually run by your internet provider or a service like Google's 8.8.8.8, to find the answer.</div></div>
+          <div class="cycle-step" data-step="3"><div class="cycle-num">STEP 3</div><h4>Root server</h4><div class="cycle-detail">The resolver asks a root server which organisation manages the ".com" part of the internet.</div></div>
+          <div class="cycle-step" data-step="4"><div class="cycle-num">STEP 4</div><h4>TLD server</h4><div class="cycle-detail">That ".com" server points the resolver to the specific nameservers responsible for unatrac.com itself.</div></div>
+          <div class="cycle-step" data-step="5"><div class="cycle-num">STEP 5</div><h4>Authoritative answer</h4><div class="cycle-detail">Those nameservers give the final, authoritative answer: unatrac.com currently lives at a specific IP address.</div></div>
+          <div class="cycle-step" data-step="6"><div class="cycle-num">STEP 6</div><h4>Page loads</h4><div class="cycle-detail">Your browser connects directly to that IP address and the website loads. This entire chain usually takes a fraction of a second.</div></div>
+        </div>
+
+        <p>For an investigator, the useful part is that every one of those steps leaves a record somewhere, and DNS itself holds several different types of information beyond just the IP address, called record types. The ones you will use constantly:</p>
+
+        <table class="cmd-table">
+          <tr><th>Record type</th><th>What it holds</th><th>Why an investigator cares</th></tr>
+          <tr><td class="cmd-cell">A</td><td>The IPv4 address a domain points to</td><td>Tells you where the site is actually hosted, sometimes revealing a hosting provider known for tolerating abuse</td></tr>
+          <tr><td class="cmd-cell">MX</td><td>Which servers handle email for the domain</td><td>A domain built purely for a phishing email often has suspicious or freshly configured MX records</td></tr>
+          <tr><td class="cmd-cell">NS</td><td>The domain's nameservers</td><td>Fraud rings often reuse the same nameserver provider across dozens of scam domains, a pattern that links cases together</td></tr>
+          <tr><td class="cmd-cell">TXT</td><td>Free text, often used for verification and anti spoofing records</td><td>A missing or misconfigured SPF/DMARC record is another common sign of a hastily built scam domain</td></tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <h3>3. Ports and protocols: which door, and which language</h3>
+        <p>If an IP address is a building's street address, a port number is the specific door on that building a piece of software knocks on. Different services agree in advance to use specific doors, so computers do not have to guess. Try matching the ports below to what they are typically used for.</p>
+
+        <div class="match-wrap">
+          <div class="match-col">
+            <h4>Drag from here</h4>
+            <div class="drag-item" draggable="true" data-match="p1">Port 22, SSH</div>
+            <div class="drag-item" draggable="true" data-match="p2">Port 25, SMTP</div>
+            <div class="drag-item" draggable="true" data-match="p3">Port 443, HTTPS</div>
+            <div class="drag-item" draggable="true" data-match="p4">Port 3389, RDP</div>
+          </div>
+          <div class="match-col">
+            <h4>Drop here</h4>
+            <div class="drop-zone" data-answer="p1"><span class="placeholder">Secure remote command line access to a server</span></div>
+            <div class="drop-zone" data-answer="p2"><span class="placeholder">Sending email between mail servers</span></div>
+            <div class="drop-zone" data-answer="p3"><span class="placeholder">Encrypted website traffic, the padlock icon in a browser</span></div>
+            <div class="drop-zone" data-answer="p4"><span class="placeholder">Remote desktop access, a port ransomware attackers scan for constantly</span></div>
+          </div>
+        </div>
+        <div id="matchStatus" class="mono" style="font-size:12.5px; color:var(--text-faint);"></div>
+
+        <div class="callout">
+          <b>Why HTTPS is not proof of legitimacy.</b> Many beginners are taught to "check for the padlock" as a safety rule. It is not enough anymore. Free, automatic HTTPS certificates are available to literally anyone, including scammers. A lookalike domain like untarac-holdings.com can have a perfectly valid padlock. The padlock only proves the connection is encrypted, not that the website is honest.
+        </div>
+      </section>
+
+      <!-- ============ TAB 3: WHOIS INVESTIGATION ============ -->
+      <section class="section" id="t3">
+        <div class="kicker">Turning a domain name into evidence</div>
+        <h2>Reading a WHOIS record like an investigator</h2>
+        <p class="lede">WHOIS is a public lookup service that shows registration details for a domain name. It is one of the fastest, completely free ways to start building a picture of who is behind a website. Let us investigate that lookalike domain from the Unatrac style case.</p>
+
+        <div class="whois-panel">
+          <div class="whois-lookup-bar">
+            <input type="text" id="whoisInput" value="untarac-holdings.com" class="mono">
+            <button class="btn" id="whoisBtn">Run WHOIS lookup</button>
+          </div>
+          <div class="whois-output" id="whoisOutput">
+            <div class="whois-line">Domain Name: <span class="whois-hot" data-flag="1">UNTARAC-HOLDINGS.COM</span></div>
+            <div class="whois-flag" id="whoisFlag1">Notice this is one letter off from the real company name, "Unatrac." This single letter swap is the entire trick. At a glance, in a busy inbox, most people read what they expect to see, not what is actually there.</div>
+
+            <div class="whois-line">Registrar: NameSilo, LLC</div>
+            <div class="whois-line">Registrant Organization: <span class="whois-hot" data-flag="2">REDACTED FOR PRIVACY</span></div>
+            <div class="whois-flag" id="whoisFlag2">Privacy protection services are common and completely legal, even for honest domain owners, so this alone is not proof of guilt. But combined with the other flags here, it removes one of the easiest ways to identify the true owner directly through WHOIS, meaning you will need to go further, for example checking payment trails or hosting provider records through a proper legal request.</div>
+
+            <div class="whois-line">Registrant Country: Unknown (privacy protected)</div>
+            <div class="whois-line">Creation Date: <span class="whois-hot" data-flag="3">2018-04-09</span></div>
+            <div class="whois-flag" id="whoisFlag3">The real phishing email in the style of this case went out in April 2018. A domain registered just days or weeks before it was used is one of the strongest indicators in this entire field. Legitimate businesses rarely build a new domain days before sending an urgent payment change notice. Always check the creation date first.</div>
+
+            <div class="whois-line">Registry Expiry Date: 2019-04-09</div>
+            <div class="whois-line">Name Server: <span class="whois-hot" data-flag="4">NS1.BULLETPROOF-DNS.NET</span></div>
+            <div class="whois-line">Name Server: <span class="whois-hot" data-flag="4">NS2.BULLETPROOF-DNS.NET</span></div>
+            <div class="whois-flag" id="whoisFlag4">Fraud infrastructure is frequently reused across many scam domains at once. If you look up this same nameserver provider in a real investigation using a free tool like a reverse NS lookup, you would often find dozens of other suspicious domains sitting on the exact same infrastructure. That is how single cases turn into networks of cases.</div>
+
+            <div class="whois-line">Domain Status: <span class="whois-hot" data-flag="5">clientTransferProhibited</span></div>
+            <div class="whois-flag" id="whoisFlag5">This is a completely normal, routine security setting on most domains and is not a red flag by itself. It is included here to teach an important investigative discipline: not everything unusual sounding in a technical record is actually suspicious. Learning to tell real signal from noise is half the skill.</div>
+          </div>
+          <div class="flag-counter" id="flagCounter" style="display:none;">Flags reviewed: 0 / 5</div>
+        </div>
+
+        <div class="callout next">
+          <b>Free tools you can use for this today.</b> The <span class="mono">whois</span> command on Linux and macOS, ICANN's free Lookup tool at lookup.icann.org, viewdns.info for historical WHOIS and reverse lookups, and crt.sh for certificate transparency logs that can reveal every subdomain a certificate was ever issued for. None of these cost anything, and all of them are legal to use on any public domain.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>The Wayback Machine: seeing a website's past</h3>
+        <p>One more free tool deserves its own mention. The Internet Archive's Wayback Machine, at web.archive.org, has been quietly photographing the public internet since 1996. If a scam website is taken down the moment its owners suspect they are being investigated, the Wayback Machine may still hold a saved copy of exactly what it looked like, when it first appeared, and how it changed over time. This has cracked open more than one case where the live evidence had already vanished.</p>
+
+        <div class="callout">
+          <b>A real world scale reminder.</b> In August 2019, United States federal prosecutors unsealed a 252 count indictment against 80 defendants, most of them Nigerian nationals, accused of running business email compromise and romance scam operations across multiple countries. Two of the accused, Valentine Iro and Chukwudi Christogunus Igbokwe, were accused of laundering at least 6 million dollars through a Los Angeles based network, out of an estimated 40 million dollars taken from victims worldwide. The FBI investigation behind that case had begun all the way back in 2016. Cases like this are rarely cracked by one dramatic discovery. They are built, patiently, from exactly the kind of small technical details you just practised reading above.
+        </div>
+      </section>
+
+      <!-- ============ TAB 4: LINUX TERMINAL ============ -->
+      <section class="section" id="t4">
+        <div class="kicker">Getting comfortable with the command line</div>
+        <h2>The Linux terminal, and why investigators live in it</h2>
+        <p class="lede">Most professional forensic and OSINT tools either run on Linux, or run far better on Linux, and many have no graphical interface at all. The terminal looks intimidating for about a week, and then it becomes the fastest tool you own.</p>
+
+        <table class="cmd-table">
+          <tr><th>Command</th><th>What it does</th><th>Why you will use it</th></tr>
+          <tr><td class="cmd-cell">pwd</td><td>Prints your current folder location</td><td>Always know exactly where you are before you run a command that touches files</td></tr>
+          <tr><td class="cmd-cell">ls</td><td>Lists files in the current folder</td><td>The first command you run when you open any case folder</td></tr>
+          <tr><td class="cmd-cell">cd</td><td>Changes your current folder</td><td>Moving between case files and tool directories</td></tr>
+          <tr><td class="cmd-cell">whoami</td><td>Shows which user account you are logged in as</td><td>Confirms you are working in your isolated investigation environment, not your personal machine</td></tr>
+          <tr><td class="cmd-cell">ping</td><td>Tests whether a host is reachable and how long it takes to respond</td><td>A fast first check on whether a suspicious domain is even online right now</td></tr>
+          <tr><td class="cmd-cell">nslookup / dig</td><td>Looks up DNS records for a domain</td><td>Exactly the A, MX, and NS record lookups from Tab 2, run directly from your own machine</td></tr>
+          <tr><td class="cmd-cell">whois</td><td>Looks up domain registration details</td><td>The same WHOIS record you investigated in Tab 3, without needing a website at all</td></tr>
+          <tr><td class="cmd-cell">traceroute</td><td>Shows the path your connection takes to reach a host, hop by hop</td><td>Useful for understanding roughly where in the world a server sits</td></tr>
+          <tr><td class="cmd-cell">curl</td><td>Fetches a web page or file directly from the command line</td><td>Grabbing raw page data for analysis without opening a risky link in a browser</td></tr>
+          <tr><td class="cmd-cell">man [command]</td><td>Opens the manual for any command</td><td>Every command above has far more options than this table covers. The manual is always the true source</td></tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <h3>Try it yourself, safely, right now</h3>
+        <p class="lede" style="margin-bottom:10px;">This is a simulated terminal. Nothing you type here touches a real system, which makes it a safe place to build finger memory before you install your own virtual machine next. Type a command below or click one of the suggestions.</p>
+
+        <div class="term-chips">
+          <div class="term-chip" data-cmd="whoami">whoami</div>
+          <div class="term-chip" data-cmd="pwd">pwd</div>
+          <div class="term-chip" data-cmd="ls">ls</div>
+          <div class="term-chip" data-cmd="ping untarac-holdings.com">ping untarac-holdings.com</div>
+          <div class="term-chip" data-cmd="nslookup untarac-holdings.com">nslookup untarac-holdings.com</div>
+          <div class="term-chip" data-cmd="whois untarac-holdings.com">whois untarac-holdings.com</div>
+          <div class="term-chip" data-cmd="help">help</div>
+        </div>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <span class="term-dot" style="background:#E2574C;"></span>
+            <span class="term-dot" style="background:#E3A73A;"></span>
+            <span class="term-dot" style="background:#5FBF7A;"></span>
+            <span class="term-title">mentee@sacs-lab: ~/week02</span>
+          </div>
+          <div class="term-body" id="termBody">
+            <div class="term-line out">SACS simulated terminal. Type "help" to see available commands.</div>
+          </div>
+          <div class="term-input-row">
+            <span class="prompt">mentee@sacs-lab:~$</span>
+            <input type="text" class="term-input" id="termInput" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="callout next">
+          <b>What changes once you have your own VM.</b> Everything above works exactly the same way on the real Kali or Ubuntu virtual machine you will build in the next tab, except the answers will be real, live data instead of teaching examples. The muscle memory you are building right now transfers directly.
+        </div>
+      </section>
+
+      <!-- ============ TAB 5: BUILD YOUR LAB ============ -->
+      <section class="section" id="t5">
+        <div class="kicker">Your own isolated environment</div>
+        <h2>Setting up your virtual machine</h2>
+        <p class="lede">Before you touch a live investigation, you need a computer inside your computer, one you can experiment on, break, and reset without any risk to your actual laptop or your personal files. This is called a virtual machine, or VM.</p>
+
+        <h3>Why investigators insist on this, always</h3>
+        <p>A virtual machine is a complete, isolated computer that runs as software inside your real one. If something goes wrong inside it, a suspicious file behaves unexpectedly, a dark web page tries something unusual, a tool you are learning crashes everything, you simply delete the VM or roll it back to an earlier saved state, called a snapshot, and nothing on your real machine was ever touched. This single habit will save you more than once over the course of this program.</p>
+
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div><h4>Install VirtualBox</h4><p>Download Oracle VirtualBox, completely free, from virtualbox.org. It runs on Windows, macOS, and Linux. This is the software that will host your virtual machine.</p></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div><h4>Download the Kali Linux VM image</h4><p>Kali Linux is a free, purpose built Linux distribution used throughout digital forensics and security work. Go to kali.org/get-kali and choose the prebuilt VirtualBox image rather than the manual installer. This saves you an entire setup process.</p></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div><h4>Import the image into VirtualBox</h4><p>Open VirtualBox, choose File, then Import Appliance, and select the Kali file you downloaded. Give it at least 4GB of memory and 40GB of disk space if your machine can spare it.</p></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div><h4>Start the machine and log in</h4><p>Kali's default username and password are both "kali" on the current official images. Change this password immediately once you are in, using the passwd command you now know from Tab 4.</p></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">5</div>
+          <div><h4>Take your first snapshot</h4><p>In VirtualBox, right click your VM and choose Snapshot, then Take Snapshot. Do this now, while everything is clean. This becomes your safe restore point for the rest of the program.</p></div>
+        </div>
+
+        <div class="callout warn">
+          <b>Minimum machine requirements.</b> You will want at least 8GB of RAM on your host laptop, ideally 16GB, and roughly 60GB of free disk space once you account for both VirtualBox and the Kali image. If your machine is older or lower spec, tell your mentor now rather than in Week 5. There are lighter weight alternatives available.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Knowledge check</h3>
+        <p class="lede" style="margin-bottom:14px;">Eight questions covering everything in this week's resource.</p>
+
+        <div id="quizWrap">
+          <div class="quiz-item" data-correct="b">
+            <div class="quiz-q">1. Why is an IP address treated as a lead rather than proof of identity?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q1" value="a"> IP addresses are usually fake or randomly generated</label>
+              <label><input type="radio" name="q1" value="b"> Technologies like NAT and CGNAT let many people share one public IP address</label>
+              <label><input type="radio" name="q1" value="c"> IP addresses change every few seconds automatically</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+          <div class="quiz-item" data-correct="c">
+            <div class="quiz-q">2. In DNS, which record type tells you which servers handle a domain's email?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q2" value="a"> A record</label>
+              <label><input type="radio" name="q2" value="b"> NS record</label>
+              <label><input type="radio" name="q2" value="c"> MX record</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+          <div class="quiz-item" data-correct="a">
+            <div class="quiz-q">3. What does a valid HTTPS padlock actually prove about a website?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q3" value="a"> Only that the connection is encrypted, not that the site is honest</label>
+              <label><input type="radio" name="q3" value="b"> That the website has been verified as legitimate by a government body</label>
+              <label><input type="radio" name="q3" value="c"> That the website cannot possibly be used for fraud</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+          <div class="quiz-item" data-correct="b">
+            <div class="quiz-q">4. In the WHOIS record you investigated, what made the creation date such a strong red flag?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q4" value="a"> It was written in an unusual date format</label>
+              <label><input type="radio" name="q4" value="b"> The domain was registered only days before it was used in the fraudulent email</label>
+              <label><input type="radio" name="q4" value="c"> The date field was completely empty</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+          <div class="quiz-item" data-correct="c">
+            <div class="quiz-q">5. Which Linux command would you use to look up a domain's DNS records?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q5" value="a"> pwd</label>
+              <label><input type="radio" name="q5" value="b"> whoami</label>
+              <label><input type="radio" name="q5" value="c"> nslookup</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+          <div class="quiz-item" data-correct="a">
+            <div class="quiz-q">6. What is a VM snapshot mainly used for?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q6" value="a"> Saving a clean restore point you can return to if something goes wrong</label>
+              <label><input type="radio" name="q6" value="b"> Taking a screenshot of your desktop</label>
+              <label><input type="radio" name="q6" value="c"> Speeding up your internet connection</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+          <div class="quiz-item" data-correct="b">
+            <div class="quiz-q">7. Why do investigators use a free tool like the Wayback Machine?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q7" value="a"> It reveals a domain's private WHOIS registrant automatically</label>
+              <label><input type="radio" name="q7" value="b"> It can show what a website looked like even after the live evidence has been taken down</label>
+              <label><input type="radio" name="q7" value="c"> It is required by law before any investigation can begin</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+          <div class="quiz-item" data-correct="a">
+            <div class="quiz-q">8. Why might two unrelated looking scam domains actually be connected?</div>
+            <div class="quiz-opts">
+              <label><input type="radio" name="q8" value="a"> They share the same nameserver or hosting infrastructure</label>
+              <label><input type="radio" name="q8" value="b"> They were registered by two different, unrelated registrars</label>
+              <label><input type="radio" name="q8" value="c"> They both use HTTPS</label>
+            </div>
+            <div class="quiz-result"></div>
+          </div>
+        </div>
+        <div class="quiz-submit-row">
+          <button class="btn" id="quizCheckAll">Check my answers</button>
+          <span class="quiz-score" id="quizScore"></span>
+        </div>
+      </section>
+
+      <!-- ============ TAB 6: TASKS ============ -->
+      <section class="section" id="t6">
+        <div class="kicker">Before you move to Week 3</div>
+        <h2>This week's deliverables</h2>
+        <p class="lede">These match the syllabus for Phase 0, Week 2. Check each one off as you complete it. Your progress saves automatically in this browser.</p>
+
+        <div class="task-row" data-task="1">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Install VirtualBox and import the Kali Linux VM image</b><span>Follow the five steps in Tab 5. Take your first snapshot once Kali is running and the password has been changed.</span></div>
+        </div>
+        <div class="task-row" data-task="2">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Run WHOIS and DNS lookups on five real domains and interpret the results</b><span>Pick five domains you know, a bank, a news site, a business. Note the registrar, creation date, and nameservers for each, and write one sentence per domain on what stood out.</span></div>
+        </div>
+        <div class="task-row" data-task="3">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Complete the guided Linux command line exercise set</b><span>Inside your new Kali VM, practise every command from the Tab 4 table at least once. Take a screenshot of your terminal history to show your mentor.</span></div>
+        </div>
+        <div class="task-row" data-task="4">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Score at least 6 out of 8 on the Tab 5 knowledge check</b><span>Retake it as many times as you need. This is about building real understanding, not a one shot test.</span></div>
+        </div>
+
+        <div class="callout next">
+          <b>Looking ahead to Week 3.</b> Next week is about protecting yourself before you protect anyone else. You will build your investigator OPSEC setup, a dedicated research persona, VPN discipline, and a proper case notes habit, and you will be introduced to the intelligence cycle in more operational depth.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============ SIDEBAR ============ -->
+    <div class="sidebar-col">
+      <div class="side-card">
+        <h3>Your progress</h3>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">0 of 6 sections viewed</div>
+      </div>
+
+      <div class="side-card">
+        <h3>Week 2 glossary</h3>
+        <div id="glossaryList">
+          <div class="glossary-item"><div class="glossary-term">IPv4 <span class="plus">+</span></div><div class="glossary-def">The most common addressing format on the internet, four numbers from 0 to 255 separated by dots.</div></div>
+          <div class="glossary-item"><div class="glossary-term">NAT / CGNAT <span class="plus">+</span></div><div class="glossary-def">Technology that lets many devices, sometimes many customers, share one public IP address.</div></div>
+          <div class="glossary-item"><div class="glossary-term">DNS <span class="plus">+</span></div><div class="glossary-def">The system that translates human friendly domain names into the IP addresses computers actually use.</div></div>
+          <div class="glossary-item"><div class="glossary-term">WHOIS <span class="plus">+</span></div><div class="glossary-def">A free public lookup showing a domain's registration details, registrar, dates, and nameservers.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Port <span class="plus">+</span></div><div class="glossary-def">A numbered channel a specific service uses to communicate, like a designated door on a building.</div></div>
+          <div class="glossary-item"><div class="glossary-term">VM / Snapshot <span class="plus">+</span></div><div class="glossary-def">A virtual machine is an isolated computer running as software. A snapshot is a saved, restorable state of that machine.</div></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Quick checklist</h3>
+        <div class="checklist-item"><input type="checkbox" id="cl1"><label for="cl1">Read all six tabs</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl2"><label for="cl2">Tried the WHOIS red flag exercise</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl3"><label for="cl3">Matched all four ports correctly</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl4"><label for="cl4">Ran at least five terminal commands</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl5"><label for="cl5">Scored 6 or higher on the quiz</label></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  SACS &middot; Cyber Intelligence &amp; Investigations Professional Track &middot; Week 2 of 26 &middot; Built for live, shared screen teaching
+</footer>
+
+<script>
+// ---------- TAB SWITCHING ----------
+const tabBtns = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('.section');
+let viewedTabs = new Set(['t1']);
+const TOTAL_TABS = 6;
+
+function updateProgress(){
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  const pct = Math.round((viewedTabs.size / TOTAL_TABS) * 100);
+  fill.style.width = pct + '%';
+  label.textContent = viewedTabs.size + ' of ' + TOTAL_TABS + ' sections viewed';
+  try{ localStorage.setItem('sacs_wk2_viewed', JSON.stringify([...viewedTabs])); }catch(e){}
+}
+
+tabBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.getAttribute('data-tab');
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    sections.forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+    viewedTabs.add(id);
+    updateProgress();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+try{
+  const saved = JSON.parse(localStorage.getItem('sacs_wk2_viewed') || '["t1"]');
+  saved.forEach(t=>viewedTabs.add(t));
+}catch(e){}
+updateProgress();
+
+// ---------- GLOSSARY ----------
+document.querySelectorAll('.glossary-item').forEach(item=>{
+  item.addEventListener('click', ()=> item.classList.toggle('open'));
+});
+
+// ---------- IP OCTET CLICKS ----------
+const ipInfo = {
+  "1": "The first number, 102 here, is the broadest part of the address. In real investigative tools, this range is usually enough on its own to identify which country and which internet provider or hosting company an address belongs to.",
+  "2": "The second number narrows things further within that provider's network. On its own it still cannot identify a specific person or household.",
+  "3": "The third number narrows the range further still, often down to a specific city or a specific customer grouping inside a provider's network.",
+  "4": "The final number is the most specific part, but remember: because of NAT and CGNAT, this exact address might still be shared by many devices or many customers at the exact moment you are looking at it. This is why investigators always pair an IP address with a precise timestamp when requesting records from an internet provider."
+};
+document.querySelectorAll('.ip-octet').forEach(oct=>{
+  oct.addEventListener('click', ()=>{
+    const key = oct.getAttribute('data-oct');
+    if(!ipInfo[key]) return;
+    document.querySelectorAll('.ip-octet').forEach(o=>o.classList.remove('open'));
+    oct.classList.add('open');
+    const detail = document.getElementById('ipDetail1');
+    detail.textContent = ipInfo[key];
+    detail.classList.add('show');
+  });
+});
+
+// ---------- DNS CYCLE STEPS ----------
+document.querySelectorAll('#dnsCycle .cycle-step').forEach(step=>{
+  step.addEventListener('click', ()=>{
+    const wasOpen = step.classList.contains('open');
+    document.querySelectorAll('#dnsCycle .cycle-step').forEach(s=>s.classList.remove('open'));
+    if(!wasOpen) step.classList.add('open');
+  });
+});
+
+// ---------- PORT MATCHING GAME ----------
+const dragItems = document.querySelectorAll('.drag-item');
+const dropZones = document.querySelectorAll('.drop-zone');
+let matchCorrectCount = 0;
+
+dragItems.forEach(item=>{
+  item.addEventListener('dragstart', e=>{
+    e.dataTransfer.setData('text/plain', item.getAttribute('data-match'));
+  });
+});
+dropZones.forEach(zone=>{
+  zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', ()=> zone.classList.remove('over'));
+  zone.addEventListener('drop', e=>{
+    e.preventDefault();
+    zone.classList.remove('over');
+    if(zone.classList.contains('filled')) return;
+    const val = e.dataTransfer.getData('text/plain');
+    const answer = zone.getAttribute('data-answer');
+    const draggedEl = document.querySelector('[data-match="'+val+'"]');
+    if(val === answer){
+      zone.classList.add('filled');
+      const labelText = zone.querySelector('.placeholder').textContent;
+      zone.innerHTML = '<span style="color:#5FBF7A; font-weight:600;">' + String.fromCharCode(10003) + ' ' + draggedEl.textContent + '</span>, ' + labelText;
+      draggedEl.classList.add('placed');
+      draggedEl.setAttribute('draggable','false');
+      matchCorrectCount++;
+      document.getElementById('matchStatus').textContent = matchCorrectCount + ' of 4 matched correctly.';
+      if(matchCorrectCount === 4){ document.getElementById('matchStatus').textContent += ' All matched. Nicely done.'; }
+    } else {
+      zone.style.borderColor = '#E2574C';
+      setTimeout(()=>{ zone.style.borderColor = ''; }, 500);
+    }
+  });
+});
+let selectedDrag = null;
+dragItems.forEach(item=>{
+  item.addEventListener('click', ()=>{
+    if(item.classList.contains('placed')) return;
+    document.querySelectorAll('.drag-item').forEach(i=>i.style.outline='none');
+    selectedDrag = item;
+    item.style.outline = '2px solid #39C6B8';
+  });
+});
+dropZones.forEach(zone=>{
+  zone.addEventListener('click', ()=>{
+    if(!selectedDrag || zone.classList.contains('filled')) return;
+    const val = selectedDrag.getAttribute('data-match');
+    const answer = zone.getAttribute('data-answer');
+    if(val === answer){
+      zone.classList.add('filled');
+      const labelText = zone.querySelector('.placeholder').textContent;
+      zone.innerHTML = '<span style="color:#5FBF7A; font-weight:600;">' + String.fromCharCode(10003) + ' ' + selectedDrag.textContent + '</span>, ' + labelText;
+      selectedDrag.classList.add('placed');
+      matchCorrectCount++;
+      document.getElementById('matchStatus').textContent = matchCorrectCount + ' of 4 matched correctly.';
+    }
+    selectedDrag = null;
+  });
+});
+
+// ---------- WHOIS LOOKUP SIMULATION ----------
+document.getElementById('whoisBtn').addEventListener('click', ()=>{
+  const out = document.getElementById('whoisOutput');
+  out.classList.add('show');
+  document.getElementById('flagCounter').style.display = 'block';
+});
+let whoisFlagsFound = new Set();
+document.querySelectorAll('.whois-hot').forEach(hot=>{
+  hot.addEventListener('click', ()=>{
+    hot.classList.add('found');
+    const n = hot.getAttribute('data-flag');
+    whoisFlagsFound.add(n);
+    const box = document.getElementById('whoisFlag' + n);
+    if(box) box.classList.add('show');
+    const counter = document.getElementById('flagCounter');
+    counter.textContent = 'Flags reviewed: ' + whoisFlagsFound.size + ' / 5';
+    if(whoisFlagsFound.size === 5){ counter.textContent += '. All reviewed. That is a full read of a WHOIS record.'; }
+  });
+});
+
+// ---------- SIMULATED TERMINAL ----------
+const termBody = document.getElementById('termBody');
+const termInput = document.getElementById('termInput');
+
+function termPrint(html){
+  const div = document.createElement('div');
+  div.className = 'term-line';
+  div.innerHTML = html;
+  termBody.appendChild(div);
+  termBody.scrollTop = termBody.scrollHeight;
+}
+
+function runCommand(raw){
+  const cmd = raw.trim();
+  termPrint('<span class="prompt">mentee@sacs-lab:~$</span> <span class="cmd">' + escapeHtml(cmd) + '</span>');
+  if(cmd === ''){ return; }
+  const lower = cmd.toLowerCase();
+
+  if(lower === 'help'){
+    termPrint('<span class="out">Available commands: pwd, ls, whoami, ping [host], nslookup [host], whois [host], clear, help</span>');
+  } else if(lower === 'pwd'){
+    termPrint('<span class="out">/home/mentee/week02</span>');
+  } else if(lower === 'whoami'){
+    termPrint('<span class="out">mentee</span>');
+  } else if(lower === 'ls'){
+    termPrint('<span class="out">casefile-untarac.txt   notes.md   week02-lab/</span>');
+  } else if(lower === 'clear'){
+    termBody.innerHTML = '';
+  } else if(lower.startsWith('ping ')){
+    const host = cmd.slice(5).trim();
+    termPrint('<span class="out">PING ' + escapeHtml(host) + ' (102.89.44.17): 56 data bytes</span>');
+    termPrint('<span class="out">64 bytes from 102.89.44.17: icmp_seq=0 ttl=52 time=41.2 ms</span>');
+    termPrint('<span class="out">64 bytes from 102.89.44.17: icmp_seq=1 ttl=52 time=39.8 ms</span>');
+    termPrint('<span class="out">--- ' + escapeHtml(host) + ' ping statistics ---</span>');
+    termPrint('<span class="out">2 packets transmitted, 2 received, 0% packet loss</span>');
+  } else if(lower.startsWith('nslookup ')){
+    const host = cmd.slice(9).trim();
+    termPrint('<span class="out">Server:  8.8.8.8</span>');
+    termPrint('<span class="out">Address: 8.8.8.8#53</span>');
+    termPrint('<span class="out"></span>');
+    termPrint('<span class="out">Non-authoritative answer:</span>');
+    termPrint('<span class="out">Name:    ' + escapeHtml(host) + '</span>');
+    termPrint('<span class="out">Address: 102.89.44.17</span>');
+  } else if(lower.startsWith('whois ')){
+    const host = cmd.slice(6).trim();
+    termPrint('<span class="out">Domain Name: ' + escapeHtml(host.toUpperCase()) + '</span>');
+    termPrint('<span class="out">Registrar: NameSilo, LLC</span>');
+    termPrint('<span class="out">Registrant Organization: REDACTED FOR PRIVACY</span>');
+    termPrint('<span class="out">Creation Date: 2018-04-09</span>');
+    termPrint('<span class="out">Name Server: NS1.BULLETPROOF-DNS.NET</span>');
+    termPrint('<span class="out">Name Server: NS2.BULLETPROOF-DNS.NET</span>');
+    termPrint('<span class="out">Tip: compare this against Tab 3 for the full annotated breakdown.</span>');
+  } else if(lower === 'cat casefile-untarac.txt'){
+    termPrint('<span class="out">Case notes: lookalike domain, registered days before use, privacy protected registrant, shared nameserver infrastructure. Recommend escalation.</span>');
+  } else {
+    termPrint('<span class="err">command not found: ' + escapeHtml(cmd.split(' ')[0]) + '. Type "help" to see available commands.</span>');
+  }
+}
+
+function escapeHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+termInput.addEventListener('keydown', e=>{
+  if(e.key === 'Enter'){
+    runCommand(termInput.value);
+    termInput.value = '';
+  }
+});
+document.querySelectorAll('.term-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    termInput.value = chip.getAttribute('data-cmd');
+    termInput.focus();
+  });
+});
+
+// ---------- QUIZ ----------
+document.getElementById('quizCheckAll').addEventListener('click', ()=>{
+  let correctCount = 0;
+  const items = document.querySelectorAll('.quiz-item');
+  items.forEach(item=>{
+    const name = item.querySelector('input[type=radio]').name;
+    const checked = item.querySelector('input[name="'+name+'"]:checked');
+    const correct = item.getAttribute('data-correct');
+    const resultBox = item.querySelector('.quiz-result');
+    item.classList.add('answered');
+    if(!checked){
+      resultBox.textContent = 'No answer selected. Pick one to see feedback.';
+      item.classList.remove('correct','incorrect');
+      return;
+    }
+    if(checked.value === correct){
+      correctCount++;
+      item.classList.add('correct'); item.classList.remove('incorrect');
+      resultBox.textContent = 'Correct.';
+    } else {
+      item.classList.add('incorrect'); item.classList.remove('correct');
+      resultBox.textContent = 'Not quite. Review this part of the resource before the next live session.';
+    }
+  });
+  const scoreEl = document.getElementById('quizScore');
+  scoreEl.textContent = 'Score: ' + correctCount + ' / ' + items.length;
+  try{ localStorage.setItem('sacs_wk2_quiz_score', correctCount + '/' + items.length); }catch(e){}
+});
+
+// ---------- TASK CHECKLIST ----------
+document.querySelectorAll('.task-row').forEach(row=>{
+  const cb = row.querySelector('.task-check');
+  const id = 'sacs_wk2_task_' + row.getAttribute('data-task');
+  try{
+    if(localStorage.getItem(id) === 'true'){ cb.checked = true; row.classList.add('done'); }
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    row.classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+
+// ---------- SIDEBAR QUICK CHECKLIST ----------
+document.querySelectorAll('.checklist-item input').forEach(cb=>{
+  const id = 'sacs_wk2_' + cb.id;
+  try{
+    if(localStorage.getItem(id) === 'true'){
+      cb.checked = true;
+      cb.closest('.checklist-item').classList.add('done');
+    }
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    cb.closest('.checklist-item').classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+</script>
+
+</body>
+</html>
