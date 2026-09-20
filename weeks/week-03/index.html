@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 03 Case File: Cover and Discipline | SACS Cyber Intelligence &amp; Investigations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1319;
+    --panel:#171E27;
+    --panel-alt:#1D2631;
+    --panel-raise:#232E3A;
+    --line:#2C3846;
+    --line-soft:#212B36;
+    --text:#E8ECF1;
+    --text-dim:#9AAABB;
+    --text-faint:#65798D;
+    --amber:#E3A73A;
+    --amber-dim:#8A6A2C;
+    --teal:#39C6B8;
+    --teal-dim:#1F6E66;
+    --red:#E2574C;
+    --red-dim:#6E2A25;
+    --green:#5FBF7A;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--ink); color:var(--text); font-family:'IBM Plex Sans', system-ui, sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--teal-dim); color:#fff;}
+  a{color:var(--teal);}
+  h1,h2,h3,h4{font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-0.01em; margin:0 0 0.5em 0; color:#fff;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  p{margin:0 0 1em 0;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 22px;}
+
+  .topbar{background:linear-gradient(180deg, #131922 0%, #10151C 100%); border-bottom:1px solid var(--line); padding:18px 0 0 0; position:sticky; top:0; z-index:50;}
+  .topbar-inner{display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:16px; flex-wrap:wrap;}
+  .brand-block{display:flex; align-items:center; gap:16px;}
+  .stamp{border:2.5px solid var(--amber); color:var(--amber); font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:12.5px; letter-spacing:0.09em; padding:7px 12px; border-radius:4px; transform:rotate(-4deg); text-align:center; line-height:1.3; white-space:nowrap; background:rgba(227,167,58,0.06);}
+  .stamp .stamp-big{font-size:17px; display:block;}
+  .brand-text .eyebrow{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--teal); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:3px;}
+  .brand-text h1{font-size:26px; margin:0;}
+  .brand-text .sub{color:var(--text-dim); font-size:14px; margin-top:2px;}
+  .meta-strip{display:flex; gap:22px; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--text-faint); flex-wrap:wrap;}
+  .meta-strip span{margin-right:22px; margin-bottom:4px; display:inline-block;}
+  .meta-strip span b{color:var(--text-dim); font-weight:600;}
+
+  .tabs{display:flex; gap:4px; margin-top:18px; overflow-x:auto; padding-bottom:0;}
+  .tab-btn{font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:0.04em; text-transform:uppercase; background:var(--panel-alt); color:var(--text-dim); border:1px solid var(--line); border-bottom:none; padding:11px 18px; border-radius:8px 8px 0 0; cursor:pointer; white-space:nowrap; position:relative; top:1px; transition:background .15s, color .15s;}
+  .tab-btn:hover{background:var(--panel-raise); color:var(--text);}
+  .tab-btn.active{background:var(--panel); color:#fff; border-color:var(--line); border-bottom:1px solid var(--panel);}
+  .tab-btn .tag-num{color:var(--amber); margin-right:7px;}
+
+  .layout{display:flex; gap:22px; padding:26px 0 60px 0; align-items:flex-start; flex-wrap:wrap;}
+  .layout > .panel{flex:1 1 620px; min-width:0;}
+  .layout > .sidebar-col{flex:0 0 300px; width:300px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:0 var(--radius) var(--radius) var(--radius); padding:34px; min-height:420px;}
+  .section{display:none;}
+  .section.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .kicker{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--amber); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:8px;}
+  .section h2{font-size:26px; margin-bottom:6px;}
+  .lede{color:var(--text-dim); font-size:16px; max-width:740px; margin-bottom:26px;}
+  .divider{height:1px; background:var(--line-soft); margin:30px 0;}
+
+  .side-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:18px;}
+  .side-card h3{font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:var(--teal); font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  .progress-track{background:var(--line-soft); border-radius:20px; height:8px; overflow:hidden; margin:12px 0 6px 0;}
+  .progress-fill{background:linear-gradient(90deg, var(--teal-dim), var(--teal)); height:100%; width:0%; transition:width .4s ease; border-radius:20px;}
+  .progress-label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint);}
+  .glossary-item{border-bottom:1px dashed var(--line-soft); padding:9px 0; cursor:pointer;}
+  .glossary-item:last-child{border-bottom:none;}
+  .glossary-term{font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600; color:var(--text); display:flex; justify-content:space-between; align-items:center;}
+  .glossary-term .plus{color:var(--teal); font-size:15px;}
+  .glossary-def{font-size:13px; color:var(--text-dim); margin-top:6px; display:none; line-height:1.5;}
+  .glossary-item.open .glossary-def{display:block;}
+  .glossary-item.open .plus{transform:rotate(45deg); display:inline-block;}
+  .checklist-item{display:flex; align-items:flex-start; gap:9px; margin-bottom:10px; font-size:13.5px; color:var(--text-dim);}
+  .checklist-item input{margin-top:3px; accent-color:var(--teal); width:15px; height:15px; cursor:pointer;}
+  .checklist-item.done label{color:var(--text-faint); text-decoration:line-through;}
+
+  .callout{border:1px solid var(--amber-dim); background:rgba(227,167,58,0.07); border-radius:8px; padding:16px 18px; margin:20px 0; font-size:14px; color:var(--text-dim);}
+  .callout b{color:var(--amber);}
+  .callout.next{border-color:var(--teal-dim); background:rgba(57,198,184,0.06);}
+  .callout.next b{color:var(--teal);}
+  .callout.warn{border-color:var(--red-dim); background:rgba(226,87,76,0.07);}
+  .callout.warn b{color:var(--red);}
+  .callout.care{border-color:#4A6FA5; background:rgba(74,111,165,0.08);}
+  .callout.care b{color:#7FA8E0;}
+
+  .profile-mock{background:#F3F1EC; color:#1A1A1A; border-radius:10px; overflow:hidden; margin:18px 0; border:1px solid #C9C4B6; font-family:'IBM Plex Sans', sans-serif;}
+  .profile-banner{height:60px; background:linear-gradient(120deg,#8FA8C9,#B9C7DE);}
+  .profile-main{padding:0 22px 20px 22px; position:relative;}
+  .profile-pic{width:74px; height:74px; border-radius:50%; background:#D8D2C2; border:4px solid #F3F1EC; margin-top:-37px; display:flex; align-items:center; justify-content:center; font-size:26px; color:#7A7362;}
+  .profile-hot{cursor:pointer; border-bottom:2px dotted #C0392B; padding:1px 2px;}
+  .profile-hot.found{background:#FBE2DE; border-bottom:2px solid #C0392B;}
+  .profile-flag{display:none; background:#C0392B; color:#fff; font-size:12.5px; font-family:'IBM Plex Sans',sans-serif; padding:10px 12px; border-radius:6px; margin-top:6px; line-height:1.4;}
+  .profile-flag.show{display:block; margin-left:22px; margin-right:22px;}
+  .profile-name{font-size:17px; font-weight:700; margin-top:8px;}
+  .profile-handle{font-size:13px; color:#6B6555;}
+  .profile-bio{font-size:13.5px; margin-top:10px; line-height:1.6;}
+  .profile-row{font-size:13px; color:#3A3A3A; margin-top:6px;}
+
+  .dodont{display:flex; gap:16px; flex-wrap:wrap; margin:18px 0;}
+  .dodont > div{flex:1 1 260px; min-width:240px; border-radius:var(--radius); padding:18px 20px;}
+  .do-col{background:rgba(95,191,122,0.07); border:1px solid #2E5A3D;}
+  .dont-col{background:rgba(226,87,76,0.07); border:1px solid var(--red-dim);}
+  .dodont h4{font-size:14px; margin-bottom:10px;}
+  .do-col h4{color:var(--green);}
+  .dont-col h4{color:var(--red);}
+  .dodont ul{margin:0; padding-left:18px; font-size:13.5px; color:var(--text-dim);}
+  .dodont li{margin-bottom:8px;}
+
+  .vpn-diagram{background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:22px; margin:18px 0;}
+  .vpn-switch-row{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .vpn-switch{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:4px; display:flex; cursor:pointer; width:220px;}
+  .vpn-switch-opt{flex:1; text-align:center; padding:8px 0; font-family:'IBM Plex Mono',monospace; font-size:12px; border-radius:16px; color:var(--text-dim);}
+  .vpn-switch-opt.active{background:var(--teal); color:#08201D; font-weight:600;}
+  .vpn-flow{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-family:'IBM Plex Mono',monospace; font-size:12.5px;}
+  .vpn-node{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 16px; text-align:center; min-width:110px;}
+  .vpn-node .lbl{color:var(--text-faint); font-size:10.5px; text-transform:uppercase;}
+  .vpn-node .ip{color:var(--teal); font-size:13.5px; margin-top:4px;}
+  .vpn-node.exposed .ip{color:var(--red);}
+  .vpn-arrow{color:var(--text-faint);}
+  .vpn-note{font-size:13px; color:var(--text-dim); margin-top:16px;}
+
+  .encode-box{background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin:18px 0;}
+  .encode-box textarea, .encode-box input[type=text]{width:100%; background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:11px 14px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13.5px;}
+  .encode-btns{display:flex; gap:10px; margin:12px 0;}
+  .encode-out{background:#0A0D10; border:1px solid #2A3543; border-radius:8px; padding:14px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#B7F5D8; min-height:24px; word-break:break-all;}
+
+  .note-form label{font-size:13px; color:var(--text-dim); display:block; margin:12px 0 6px 0; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.05em;}
+  .note-form input[type=text], .note-form select, .note-form textarea{width:100%; background:var(--panel-alt); border:1px solid var(--line); border-radius:7px; padding:11px 14px; color:var(--text); font-family:'IBM Plex Sans',sans-serif; font-size:14px;}
+  .note-form textarea{min-height:80px; resize:vertical;}
+  .note-preview{background:#0A0D10; border:1px solid #2A3543; border-radius:8px; padding:18px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#B7F5D8; margin-top:18px; white-space:pre-wrap; line-height:1.7; min-height:60px;}
+
+  .scenario{background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:16px;}
+  .scenario-q{font-size:14.5px; margin-bottom:12px;}
+  .scenario-opts{display:flex; flex-direction:column; gap:8px;}
+  .scenario-opt{background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:10px 14px; cursor:pointer; font-size:13.5px; color:var(--text-dim); transition:border-color .15s;}
+  .scenario-opt:hover{border-color:var(--teal-dim);}
+  .scenario-opt.correct{border-color:var(--green); background:rgba(95,191,122,0.08); color:var(--text);}
+  .scenario-opt.wrong{border-color:var(--red); background:rgba(226,87,76,0.08); color:var(--text);}
+  .scenario-fb{display:none; margin-top:12px; font-size:13.5px; padding:12px 14px; border-radius:7px; background:var(--panel); border-left:3px solid var(--teal); color:var(--text-dim);}
+  .scenario.answered .scenario-fb{display:block;}
+  .stage-tag{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--amber); text-transform:uppercase; margin-bottom:6px; letter-spacing:0.06em;}
+
+  .selfcheck-item{display:flex; align-items:flex-start; gap:12px; background:var(--panel-alt); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-bottom:10px;}
+  .selfcheck-item input{margin-top:3px; width:17px; height:17px; accent-color:#7FA8E0; cursor:pointer; flex-shrink:0;}
+  .selfcheck-item span{font-size:13.5px; color:var(--text-dim);}
+
+  .cmd-table{width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px;}
+  .cmd-table th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line);}
+  .cmd-table td{padding:10px; border-bottom:1px solid var(--line-soft); color:var(--text-dim); vertical-align:top;}
+  .cmd-table td.cmd-cell{font-family:'IBM Plex Mono',monospace; color:var(--teal); white-space:nowrap;}
+
+  .quiz-item{margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--line-soft);}
+  .quiz-item:last-child{border-bottom:none;}
+
+  .task-row{display:flex; align-items:flex-start; gap:14px; background:var(--panel-alt); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:12px;}
+  .task-check{margin-top:2px; width:18px; height:18px; accent-color:var(--teal); cursor:pointer; flex-shrink:0;}
+  .task-text b{display:block; font-size:14.5px; color:#fff; margin-bottom:3px;}
+  .task-text span{font-size:13px; color:var(--text-dim);}
+  .task-row.done .task-text b, .task-row.done .task-text span{color:var(--text-faint); text-decoration:line-through;}
+
+  .btn{font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.03em; background:var(--teal); color:#08201D; border:none; padding:11px 22px; border-radius:7px; cursor:pointer; font-weight:600; transition:background .15s;}
+  .btn:hover{background:#4FDBCB;}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--text-dim);}
+  .btn.ghost:hover{border-color:var(--teal); color:var(--teal);}
+
+  footer{border-top:1px solid var(--line); padding:24px 0 40px 0; text-align:center; color:var(--text-faint); font-size:12.5px; font-family:'IBM Plex Mono', monospace;}
+
+  @media (max-width:880px){
+    .layout > .sidebar-col{flex-basis:100%; width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-inner">
+      <div class="brand-block">
+        <div class="stamp">CASE FILE<span class="stamp-big">WK 03</span></div>
+        <div class="brand-text">
+          <div class="eyebrow">SACS &middot; Cyber Intelligence &amp; Investigations Professional Track</div>
+          <h1>Cover and Discipline, Week 3</h1>
+          <div class="sub">Building your investigator persona, staying compartmentalised, sound case notes, and protecting your own wellbeing</div>
+        </div>
+      </div>
+      <div class="meta-strip">
+        <span><b>Phase:</b> 0 of 7</span>
+        <span><b>Runtime:</b> approx 2.5 hours</span>
+        <span><b>Format:</b> read, click, build</span>
+      </div>
+    </div>
+    <div class="tabs" id="tabBar">
+      <button class="tab-btn active" data-tab="t1"><span class="tag-num">01</span>Orientation</button>
+      <button class="tab-btn" data-tab="t2"><span class="tag-num">02</span>Your Persona</button>
+      <button class="tab-btn" data-tab="t3"><span class="tag-num">03</span>VPNs &amp; Cover</button>
+      <button class="tab-btn" data-tab="t4"><span class="tag-num">04</span>Case Notes</button>
+      <button class="tab-btn" data-tab="t5"><span class="tag-num">05</span>Intelligence Cycle</button>
+      <button class="tab-btn" data-tab="t6"><span class="tag-num">06</span>Staying Well</button>
+      <button class="tab-btn" data-tab="t7"><span class="tag-num">07</span>This Week's Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="layout">
+
+    <div class="panel">
+
+      <!-- ============ TAB 1: ORIENTATION ============ -->
+      <section class="section active" id="t1">
+        <div class="kicker">Foundations, final week</div>
+        <h2>The week that protects everything else</h2>
+        <p class="lede">You now understand the roles, the landscape, and the plumbing of the internet. This week is different. It is about protecting yourself, your evidence, and your own mind while you do this work, for the rest of your career, not just this program.</p>
+
+        <p>Here is something worth sitting with. An investigator who gets identified by the people they are investigating is not just personally at risk. Their case can collapse, their organisation can be compromised, and future investigations by anyone connected to them become harder. Discipline here is not paranoia. It is professional hygiene, the same way a surgeon scrubs in before an operation, not because every patient is dangerous, but because the cost of skipping the habit even once can be severe.</p>
+
+        <p>This week covers four things that fit together as one system: building a research identity that cannot be traced back to you, using a VPN correctly and understanding its real limits, building a case notes habit that will serve you for years, and recognising the early signs of burnout before this work starts costing you more than it should.</p>
+
+        <div class="callout">
+          <b>Why this comes before the technical phases.</b> Starting in Phase 1, you begin real OSINT practice. Starting in Phase 5, you will access the dark web. Both require the habits in this week already being second nature. We are building the seatbelt before you learn to drive fast.
+        </div>
+
+        <h3>A pattern worth knowing before you start</h3>
+        <p>Open source investigators, journalists, and researchers who work publicly have, on more than one documented occasion, found themselves targeted in return once their work drew enough attention. Bellingcat, the well known open source investigation collective, has spoken publicly about members being named, targeted, and harassed by hostile actors after their research became prominent, including during their work on state linked incidents. None of this happened because the researchers did anything wrong technically. It happened because their identities became linked to their work, sometimes through nothing more than a reused photo or a consistent writing style across a real and a research account.</p>
+        <p>You are not likely to attract that level of attention in a training exercise. But the pattern holds at every scale. A local fraud ring you investigate professionally one day may have far more capacity and willingness to retaliate than a stranger would guess, and the habits that protect a globally known investigator are exactly the same habits that protect you on your very first real case. Build them now, while the stakes are still training exercises, so they are automatic by the time the stakes are real.</p>
+
+        <h3>The four things this week actually builds</h3>
+        <p>Everything in this week's four remaining tabs supports one single goal: making sure that nothing about how you conduct an investigation can be turned around and used against you, your evidence, or the people you are trying to help. Concretely, that means:</p>
+        <ul style="padding-left:20px; color:var(--text-dim); font-size:15px;">
+          <li style="margin-bottom:8px;">A research identity that cannot be traced back to your real one, even under scrutiny (Tab 2).</li>
+          <li style="margin-bottom:8px;">Network level protection that hides your real location from the people you investigate (Tab 3).</li>
+          <li style="margin-bottom:8px;">A documentation habit that makes your findings defensible months or years later, not just convincing to you today (Tab 4).</li>
+          <li style="margin-bottom:8px;">Enough self awareness to notice when this work is costing you more than it should, before it becomes a real problem (Tab 6).</li>
+        </ul>
+        <p>None of these are separate skills you learn once and forget. They are habits you will keep building for the rest of the program, and realistically, for the rest of your career in this field.</p>
+      </section>
+
+      <!-- ============ TAB 2: YOUR PERSONA ============ -->
+      <section class="section" id="t2">
+        <div class="kicker">Cover that actually holds up</div>
+        <h2>Building your investigation persona</h2>
+        <p class="lede">A sock puppet is a research identity, a separate email, username, and sometimes social media presence, that is not connected back to your real one. Used properly, within the boundaries of your Ethics Agreement, it lets you observe and research without alerting the subject or exposing yourself.</p>
+
+        <div class="callout warn">
+          <b>Read this before anything else in this tab.</b> A sock puppet is a research tool, not a licence to deceive, harass, or manipulate anyone into sharing information they would not otherwise share. It exists purely so your presence does not tip off a subject or expose your real identity. Everything you learned in Week 1's ethics tab still applies in full.
+        </div>
+
+        <h3>Why a persona needs to be more than an alias</h3>
+        <p>New investigators sometimes treat a sock puppet as nothing more than a fake name attached to their real thinking. That is precisely the mistake that gets personas unmasked. A subject, or an automated platform detection system, is not looking for a name, they are looking for a pattern. Writing style, the specific hours an account is active, which other accounts it interacts with, how quickly it replies, all of these form a fingerprint that exists whether or not you intended it to.</p>
+        <p>This is why professional analysts treat a persona less like a costume and more like a character with its own consistent, boring, believable life. A persona that has "always" worked in a mid level admin role, lives in a specific but unremarkable part of a city, and posts about ordinary things at ordinary times is far harder to unravel than a persona that exists purely to approach one subject and otherwise shows no signs of life at all.</p>
+
+        <h3>Spot the mistakes in this sock puppet profile</h3>
+        <p class="lede" style="margin-bottom:10px;">Below is a fictional research profile a mentee built for a class exercise. It has five serious OPSEC problems. Click on anything that looks like a mistake.</p>
+
+        <div class="profile-mock">
+          <div class="profile-banner"></div>
+          <div class="profile-main">
+            <div class="profile-pic">&#128100;</div>
+            <div class="profile-name">Amara Johnson</div>
+            <div class="profile-handle">@amara_johnson_ng &middot; <span class="profile-hot" data-flag="1">Joined 3 days ago</span></div>
+            <div class="profile-flag" id="profileFlag1">A brand new account with no history looks exactly like what it is. Anyone who checks your puppet's join date and finds nothing behind it will immediately suspect it is fake. A working persona needs weeks of quiet, believable activity before it is ever used to approach a real subject.</div>
+
+            <div class="profile-bio">Lagos based. Marketing enthusiast. <span class="profile-hot" data-flag="2">Same profile photo I use on my personal Instagram, just cropped differently</span></div>
+            <div class="profile-flag" id="profileFlag2">A reverse image search takes seconds and instantly connects this "separate" identity straight back to the investigator's real account. Never reuse a real photo of yourself, a colleague, or anyone identifiable, even cropped or filtered.</div>
+
+            <div class="profile-row">Location: <span class="profile-hot" data-flag="3">Lives in the same estate I actually live in, mentioned in three posts</span></div>
+            <div class="profile-flag" id="profileFlag3">Specific, real, personal location details create a direct line back to the investigator's actual life. A persona's background details should be plausible and consistent, but never true facts borrowed from your own life.</div>
+
+            <div class="profile-row">Recovery: <span class="profile-hot" data-flag="4">Recovery phone number is my personal number</span></div>
+            <div class="profile-flag" id="profileFlag4">If this account is ever compromised, reported, or investigated in return, the recovery phone number is often the very first thing that gets pulled. It should always be a separate number, ideally one not tied to your name at all.</div>
+
+            <div class="profile-row">Activity: <span class="profile-hot" data-flag="5">Always active between 9pm and midnight, matching my real sleep schedule exactly</span></div>
+            <div class="profile-flag" id="profileFlag5">Consistent activity patterns are a known deanonymisation technique. An analyst comparing your puppet's active hours against your real account's active hours, if anyone ever suspects a connection, can find a strong statistical match. Vary your persona's activity pattern deliberately.</div>
+          </div>
+        </div>
+        <div class="mono" id="pflagCounter" style="font-size:12.5px; color:var(--amber); margin-top:10px;">Mistakes found: 0 / 5</div>
+
+        <div class="divider"></div>
+
+        <h3>Building it properly</h3>
+        <div class="dodont">
+          <div class="do-col">
+            <h4>DO</h4>
+            <ul>
+              <li>Use a dedicated email created purely for this purpose, never your personal or work address</li>
+              <li>Use a stock or AI generated face, or no photo at all, never a real identifiable person</li>
+              <li>Keep a private written log of every persona detail so you stay consistent over time</li>
+              <li>Let the persona build a quiet, believable history before you ever use it actively</li>
+              <li>Keep personas and your real accounts open in separate browser profiles or containers</li>
+            </ul>
+          </div>
+          <div class="dont-col">
+            <h4>DO NOT</h4>
+            <ul>
+              <li>Reuse any password, phone number, or recovery email from your real accounts</li>
+              <li>Use the persona to harass, threaten, or manipulate anyone into unsafe disclosure</li>
+              <li>Log into a personal account from the same browser session as an active persona</li>
+              <li>Give the persona a real address, workplace, or biographical detail that is actually yours</li>
+              <li>Leave a persona logged in indefinitely without a clear investigative reason tied to a case</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout next">
+          <b>One browser habit that solves half of this.</b> Modern browsers let you create separate profiles, or in Firefox's case, Multi Account Containers, that keep cookies, logins, and history completely walled off from each other. Set up one container for your real identity and a separate one for each active persona. This single habit prevents the most common accidental exposure: a platform quietly linking two accounts because they were open in the same browser session.
+        </div>
+      </section>
+
+      <!-- ============ TAB 3: VPNs & COVER ============ -->
+      <section class="section" id="t3">
+        <div class="kicker">What a VPN actually does</div>
+        <h2>VPNs, and their honest limits</h2>
+        <p class="lede">A VPN, virtual private network, routes your internet traffic through a separate server before it reaches its destination. Toggle the switch below to see what that actually changes.</p>
+
+        <div class="vpn-diagram">
+          <div class="vpn-switch-row">
+            <div class="vpn-switch" id="vpnSwitch">
+              <div class="vpn-switch-opt active" data-mode="off">VPN OFF</div>
+              <div class="vpn-switch-opt" data-mode="on">VPN ON</div>
+            </div>
+          </div>
+          <div class="vpn-flow" id="vpnFlow">
+            <div class="vpn-node exposed"><div class="lbl">Your device</div><div class="ip">102.89.44.17</div></div>
+            <div class="vpn-arrow">&#8594;</div>
+            <div class="vpn-node"><div class="lbl">Website you visit</div><div class="ip">sees: 102.89.44.17</div></div>
+          </div>
+          <div class="vpn-note" id="vpnNote">With the VPN off, the website you visit sees your real IP address directly. Anyone with legal access to that website's logs, or the website owner themselves if they are the very fraud ring you are investigating, can potentially trace that address back toward you.</div>
+        </div>
+
+        <div class="callout warn">
+          <b>What a VPN does not do.</b> It does not make you anonymous. It does not stop a website from fingerprinting your browser through other means, screen size, fonts, installed extensions. It does not protect you if you log into a personal account while connected. It does not encrypt anything once your traffic leaves the VPN server on its way to the destination. Treat it as one layer of a system, never as a magic cloak.
+        </div>
+
+        <h3>What is actually happening underneath</h3>
+        <p>When you connect to a VPN, your device builds an encrypted tunnel to the VPN provider's server before any of your traffic touches the wider internet. Everything inside that tunnel, including which websites you visit, is unreadable to anyone watching your local network or your internet provider's equipment. Once your traffic reaches the VPN server, though, it has to leave the tunnel to actually reach the website you wanted, at which point it looks, to that website, exactly like it came from the VPN server's location, not yours.</p>
+        <p>This is precisely why a VPN protects you from your internet provider or a local network snooping on your destination, but does nothing once the connection reaches its actual endpoint. If the website itself is compromised, or run by the very people you are investigating, a VPN only hides where you connected from, not what you did once you got there. That distinction trips up more beginners than any other part of this topic.</p>
+
+        <h3>A failure mode worth knowing: the DNS leak</h3>
+        <p>Even with a VPN connected, some poorly configured setups still send DNS lookups, the requests that translate a website name into an address, outside the encrypted tunnel, straight to your regular internet provider. This is called a DNS leak, and it can reveal exactly which sites you visited even while your VPN otherwise looks like it is working correctly. Reputable VPN providers build in DNS leak protection by default, but it is worth checking your setup at a free site like dnsleaktest.com the first time you configure a new VPN, and periodically afterward.</p>
+
+        <h3>Free, reputable options</h3>
+        <table class="cmd-table">
+          <tr><th>Provider</th><th>Free tier notes</th></tr>
+          <tr><td class="cmd-cell">ProtonVPN</td><td>Genuinely free tier with no data cap, run by the same team behind Proton Mail, based in Switzerland with strong privacy law protection</td></tr>
+          <tr><td class="cmd-cell">Windscribe</td><td>Free tier with a monthly data allowance, useful as a secondary option or backup</td></tr>
+        </table>
+        <p class="lede" style="margin-top:10px;">Avoid unknown free VPN apps you have not heard of, especially mobile-only ones with no clear company behind them. Some free VPNs make their money by logging and selling exactly the browsing data you are trying to protect. A VPN you cannot trust is worse than no VPN at all.</p>
+
+        <div class="divider"></div>
+
+        <h3>Compartmentalisation, the bigger habit VPNs sit inside</h3>
+        <p>A VPN is one piece of a larger discipline called compartmentalisation, keeping every part of your investigation life separated from every part of your personal life so that a mistake in one place cannot expose the other. A simple mental checklist before opening any investigation work:</p>
+        <div class="dodont" style="margin-top:6px;">
+          <div class="do-col">
+            <h4>Before you start a session</h4>
+            <ul>
+              <li>VPN connected and confirmed active</li>
+              <li>Correct browser profile or container open, not your personal one</li>
+              <li>Persona credentials, not personal ones, ready if needed</li>
+              <li>Case notes file open and ready to log as you go</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TAB 4: CASE NOTES ============ -->
+      <section class="section" id="t4">
+        <div class="kicker">The habit that makes or breaks a case later</div>
+        <h2>Case notes, and a couple of quick tools</h2>
+        <p class="lede">Months from now, in a real case, someone may ask you exactly how you found something, and exactly when. If your notes cannot answer that, the finding may be far less useful, even if it was completely correct.</p>
+
+        <h3>What a good case note actually contains</h3>
+        <p>Every solid case note answers five questions: what did you find, where did you find it, when did you find it, how confident are you that it is accurate, and what should happen next. Try building one below using a sample finding.</p>
+
+        <div class="note-form">
+          <label>Case reference</label>
+          <input type="text" id="noteRef" placeholder="e.g. CII-2026-0042" value="CII-2026-0042">
+          <label>Date and time of finding</label>
+          <input type="text" id="noteDate" placeholder="e.g. 2026-03-14, 15:40 WAT">
+          <label>Source</label>
+          <input type="text" id="noteSource" placeholder="e.g. WHOIS lookup via whois.icann.org">
+          <label>What you found</label>
+          <textarea id="noteFinding" placeholder="Describe exactly what you observed, in plain factual language, no interpretation yet."></textarea>
+          <label>Confidence level</label>
+          <select id="noteConfidence">
+            <option>Low, single uncorroborated source</option>
+            <option selected>Moderate, one solid source, not yet cross checked</option>
+            <option>High, corroborated by two or more independent sources</option>
+          </select>
+          <label>Next step</label>
+          <input type="text" id="noteNext" placeholder="e.g. Cross check nameserver against known scam infrastructure list">
+
+          <button class="btn" id="buildNoteBtn" style="margin-top:16px;">Build the note</button>
+          <button class="btn ghost" id="downloadNoteBtn" style="margin-top:16px; margin-left:10px;">Download as text file</button>
+
+          <div class="note-preview" id="notePreview">Your formatted case note will appear here once you click "Build the note."</div>
+        </div>
+
+        <div class="callout next">
+          <b>Free tools worth setting up today.</b> Obsidian is a free, local first note taking app that links notes together, excellent for building a web of connected findings across a long case. Notion works well too if you prefer a more structured, database style layout. Either is fine. What matters is that you actually use one, consistently, from your very first real finding onward.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>A quick, genuinely useful tool: CyberChef</h3>
+        <p>CyberChef is a free, browser based tool built by GCHQ for exactly the kind of small technical puzzles OSINT work throws at you constantly, decoding a Base64 string found in a suspicious email header, converting a timestamp, decoding a URL. Try a tiny taste of what it does below.</p>
+
+        <div class="encode-box">
+          <label class="mono" style="font-size:12px; color:var(--text-faint); text-transform:uppercase;">Plain text</label>
+          <textarea id="encodeInput" rows="2">wire the funds to the new account today</textarea>
+          <div class="encode-btns">
+            <button class="btn" id="b64EncodeBtn">Encode to Base64</button>
+            <button class="btn ghost" id="b64DecodeBtn">Decode from Base64</button>
+          </div>
+          <div class="encode-out" id="encodeOutput">Output will appear here.</div>
+        </div>
+        <p class="lede" style="margin-top:10px;">This is a tiny fraction of what CyberChef can do. In later phases you will use its full version at gchq.github.io/CyberChef for far more complex decoding chains.</p>
+      </section>
+
+      <!-- ============ TAB 5: INTELLIGENCE CYCLE ============ -->
+      <section class="section" id="t5">
+        <div class="kicker">From theory to real decisions</div>
+        <h2>The intelligence cycle, operationally</h2>
+        <p class="lede">In Week 1 you saw the six stages of the intelligence cycle laid out. Now you will actually make decisions at each stage, in a realistic scenario, and see how your choices affect the strength of the case.</p>
+
+        <div class="callout">
+          <b>The scenario.</b> A small business owner in Abuja reports that she has been chatting for two months with a man she met online, who says he is an American engineer working on an oil rig. He has now asked her to send 800,000 naira to cover an emergency medical bill, promising to pay her back the moment he returns. She is unsure and has come to you before sending anything.
+        </div>
+
+        <div class="scenario" data-correct="b">
+          <div class="stage-tag">Stage 1, Direction</div>
+          <div class="scenario-q">What is the single most useful question to define before you start gathering anything?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Is this man definitely a criminal</div>
+            <div class="scenario-opt" data-choice="b">Is there enough evidence here to advise her not to send the money, and separately, can this profile be linked to other known scam activity</div>
+            <div class="scenario-opt" data-choice="c">What is his real name</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="scenario" data-correct="c">
+          <div class="stage-tag">Stage 2, Collection</div>
+          <div class="scenario-q">Which piece of evidence should you prioritise collecting first from her?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Her bank account password, so you can check it yourself</div>
+            <div class="scenario-opt" data-choice="b">His home address, which she probably does not have anyway</div>
+            <div class="scenario-opt" data-choice="c">Screenshots of the full conversation, his profile photos, and any other names or numbers he has given her</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="scenario" data-correct="a">
+          <div class="stage-tag">Stage 3, Processing</div>
+          <div class="scenario-q">You now have his profile photos. What is the correct next processing step?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Run a reverse image search on the photos to check whether they belong to someone else entirely</div>
+            <div class="scenario-opt" data-choice="b">Message him yourself pretending to be her to ask more questions</div>
+            <div class="scenario-opt" data-choice="c">Report the account immediately without checking anything first</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="scenario" data-correct="b">
+          <div class="stage-tag">Stage 4, Analysis</div>
+          <div class="scenario-q">The reverse image search shows his photos actually belong to a completely different real person, a photographer with no connection to oil rigs at all. What does this tell you, analytically?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Nothing conclusive, photos get mixed up online all the time</div>
+            <div class="scenario-opt" data-choice="b">This is a very strong indicator of a romance scam, stolen identity photos are one of the most consistent patterns in this fraud type</div>
+            <div class="scenario-opt" data-choice="c">It proves he is definitely a specific named criminal</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="scenario" data-correct="c">
+          <div class="stage-tag">Stage 5, Dissemination</div>
+          <div class="scenario-q">How should you deliver this finding to her?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Simply tell her "he is fake" with no explanation and move on</div>
+            <div class="scenario-opt" data-choice="b">Post the evidence publicly to warn others before telling her directly</div>
+            <div class="scenario-opt" data-choice="c">Sit with her, show her the stolen photo match clearly, explain how romance scams typically work, and support her decision on what to do next, including reporting the account</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+
+        <div class="scenario" data-correct="a">
+          <div class="stage-tag">Stage 6, Feedback</div>
+          <div class="scenario-q">A week later, she tells you the same profile tried to contact two of her friends too. What is the correct feedback step?</div>
+          <div class="scenario-opts">
+            <div class="scenario-opt" data-choice="a">Fold this new information back into your case notes, it may indicate a wider operation worth flagging to the platform or reporting further</div>
+            <div class="scenario-opt" data-choice="b">Ignore it, your case with her is already closed</div>
+            <div class="scenario-opt" data-choice="c">Contact the friends yourself directly without her involvement</div>
+          </div>
+          <div class="scenario-fb"></div>
+        </div>
+      </section>
+
+      <!-- ============ TAB 6: STAYING WELL ============ -->
+      <section class="section" id="t6">
+        <div class="kicker">The part of the job people skip talking about</div>
+        <h2>Staying well while doing this work</h2>
+        <p class="lede">Investigators, journalists, and moderators who regularly encounter fraud, exploitation, and abuse material can experience something called vicarious trauma, real psychological strain that builds from repeated exposure to other people's suffering, even when nothing happened to you directly.</p>
+
+        <p>This is not a sign of weakness and it is not rare. It is a documented occupational reality in this field, studied seriously by organisations like the Dart Center for Journalism and Trauma, which publishes free, practical guidance for exactly this kind of work. Naming it clearly now, in Week 3, means you will recognise it in yourself later instead of pushing through silently.</p>
+
+        <p>The mechanism behind vicarious trauma is worth understanding, not just the label. Repeated exposure to accounts of harm, fraud that ruined a real family, manipulation that targeted someone vulnerable, can gradually shift how safe and trusting the world feels to the person doing the observing, even though nothing physically happened to them. This is a well documented pattern among journalists, therapists, emergency dispatchers, and content moderators, and there is no reason to expect investigators are somehow immune to it. The people who do this work well over a long career are not the ones who never feel it. They are the ones who built habits to process it before it accumulated.</p>
+
+        <div class="callout care">
+          <b>Signs worth paying attention to in yourself.</b> Trouble sleeping after a heavy case, feeling emotionally numb or unusually irritable, dreading opening your case files, intrusive thoughts about something you encountered, or a creeping sense of cynicism about people in general. Any one of these occasionally is normal. A pattern building over weeks is worth acting on.
+        </div>
+
+        <h3>Habits that genuinely help</h3>
+        <div class="dodont">
+          <div class="do-col">
+            <h4>Build these in from week one</h4>
+            <ul>
+              <li>Hard stop times, this work will always have one more lead, you decide when the day ends</li>
+              <li>A debrief habit, even five minutes telling a mentor or peer what a hard case involved</li>
+              <li>Physical movement after heavy sessions, a short walk resets your nervous system more than scrolling does</li>
+              <li>Rotating heavy and light tasks within the same week rather than stacking difficult cases back to back</li>
+            </ul>
+          </div>
+          <div class="dont-col">
+            <h4>Avoid these patterns</h4>
+            <ul>
+              <li>Treating every wave of dark feelings as something to just push through alone</li>
+              <li>Comparing your reaction to a colleague's and deciding yours is "too sensitive"</li>
+              <li>Numbing with distraction instead of actually processing what you saw</li>
+              <li>Waiting until burnout is severe before telling anyone</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>A private self check</h3>
+        <p class="lede" style="margin-bottom:12px;">This stays in your own browser. Nobody else sees it. Be honest with yourself.</p>
+        <div id="selfCheckList">
+          <div class="selfcheck-item"><input type="checkbox" id="sc1"><span>I have felt noticeably more irritable or numb after a recent training session</span></div>
+          <div class="selfcheck-item"><input type="checkbox" id="sc2"><span>I have had trouble sleeping after reading about a hard case</span></div>
+          <div class="selfcheck-item"><input type="checkbox" id="sc3"><span>I have caught myself thinking about a case outside of study hours, unable to switch off</span></div>
+          <div class="selfcheck-item"><input type="checkbox" id="sc4"><span>I have not told anyone when something in this training genuinely unsettled me</span></div>
+        </div>
+        <div class="callout next" id="selfCheckResult" style="display:none;"></div>
+
+        <div class="callout">
+          <b>What to do with this.</b> If you checked two or more boxes, that is worth a conversation with your mentor, not a red flag against you. Mentors expect this conversation and it will never count against your standing in the program. If you are ever in genuine crisis, please reach out to a mental health professional or a crisis line in your area without delay. This training material is not therapy and is not a substitute for professional support.
+        </div>
+      </section>
+
+      <!-- ============ TAB 7: TASKS ============ -->
+      <section class="section" id="t7">
+        <div class="kicker">Before you move to Phase 1</div>
+        <h2>This week's deliverables</h2>
+        <p class="lede">These match the syllabus for Phase 0, Week 3, the final week of foundations before real OSINT practice begins.</p>
+
+        <div class="task-row" data-task="1">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Set up your investigation persona</b><span>A dedicated, non attributable email, a separate browser profile or container, and a VPN connected and verified working. Do not reuse any personal detail, as covered in Tab 2.</span></div>
+        </div>
+        <div class="task-row" data-task="2">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Build your personal case notes template</b><span>Use Tab 4's builder as a starting point, then set it up properly in Obsidian, Notion, or a tool of your choice. You will use this exact template for the rest of the program.</span></div>
+        </div>
+        <div class="task-row" data-task="3">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Map a sample scenario onto the intelligence cycle</b><span>Pick a different scenario from the one in Tab 5, a fraud report, a missing person case, anything realistic, and write out all six stages yourself from scratch.</span></div>
+        </div>
+
+        <div class="callout next">
+          <b>Looking ahead to Phase 1.</b> Next week, OSINT Mastery begins for real. You will learn the full investigative lifecycle, advanced search operators, and specialised search engines like Shodan and Censys, and you will run your first authorised reconnaissance labs. Everything from these last three weeks, roles, networking, WHOIS, OPSEC, case notes, becomes the toolkit you now start actually using.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============ SIDEBAR ============ -->
+    <div class="sidebar-col">
+      <div class="side-card">
+        <h3>Your progress</h3>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">0 of 7 sections viewed</div>
+      </div>
+
+      <div class="side-card">
+        <h3>Week 3 glossary</h3>
+        <div id="glossaryList">
+          <div class="glossary-item"><div class="glossary-term">Sock puppet <span class="plus">+</span></div><div class="glossary-def">A research identity, separate from your real one, used to observe or gather information without exposing yourself.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Compartmentalisation <span class="plus">+</span></div><div class="glossary-def">Keeping every part of your investigation life separated from your personal life so one mistake cannot expose the other.</div></div>
+          <div class="glossary-item"><div class="glossary-term">VPN <span class="plus">+</span></div><div class="glossary-def">A service that routes your traffic through a separate server, hiding your IP address from the sites you visit, though it has real limits.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Browser container <span class="plus">+</span></div><div class="glossary-def">A walled off browser profile that keeps cookies and logins from leaking between your real identity and a persona.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Vicarious trauma <span class="plus">+</span></div><div class="glossary-def">Real psychological strain that builds from repeated exposure to other people's suffering or disturbing material, even without direct personal harm.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Confidence level <span class="plus">+</span></div><div class="glossary-def">A stated measure of how certain a finding is, based on how many independent sources support it.</div></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Quick checklist</h3>
+        <div class="checklist-item"><input type="checkbox" id="cl1"><label for="cl1">Read all seven tabs</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl2"><label for="cl2">Found all five persona mistakes</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl3"><label for="cl3">Tried the VPN toggle diagram</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl4"><label for="cl4">Built and downloaded a case note</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl5"><label for="cl5">Completed the intelligence cycle scenario</label></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  SACS &middot; Cyber Intelligence &amp; Investigations Professional Track &middot; Week 3 of 26 &middot; Built for live, shared screen teaching
+</footer>
+
+<script>
+// ---------- TAB SWITCHING ----------
+const tabBtns = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('.section');
+let viewedTabs = new Set(['t1']);
+const TOTAL_TABS = 7;
+
+function updateProgress(){
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  const pct = Math.round((viewedTabs.size / TOTAL_TABS) * 100);
+  fill.style.width = pct + '%';
+  label.textContent = viewedTabs.size + ' of ' + TOTAL_TABS + ' sections viewed';
+  try{ localStorage.setItem('sacs_wk3_viewed', JSON.stringify([...viewedTabs])); }catch(e){}
+}
+
+tabBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.getAttribute('data-tab');
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    sections.forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+    viewedTabs.add(id);
+    updateProgress();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+try{
+  const saved = JSON.parse(localStorage.getItem('sacs_wk3_viewed') || '["t1"]');
+  saved.forEach(t=>viewedTabs.add(t));
+}catch(e){}
+updateProgress();
+
+// ---------- GLOSSARY ----------
+document.querySelectorAll('.glossary-item').forEach(item=>{
+  item.addEventListener('click', ()=> item.classList.toggle('open'));
+});
+
+// ---------- PROFILE MOCK FLAGS ----------
+let pFlagsFound = new Set();
+document.querySelectorAll('.profile-hot').forEach(hot=>{
+  hot.addEventListener('click', ()=>{
+    hot.classList.add('found');
+    const n = hot.getAttribute('data-flag');
+    pFlagsFound.add(n);
+    const box = document.getElementById('profileFlag' + n);
+    if(box) box.classList.add('show');
+    const counter = document.getElementById('pflagCounter');
+    counter.textContent = 'Mistakes found: ' + pFlagsFound.size + ' / 5';
+    if(pFlagsFound.size === 5){ counter.textContent += '. All five caught. That is a sharp eye.'; }
+  });
+});
+
+// ---------- VPN TOGGLE ----------
+const vpnSwitch = document.getElementById('vpnSwitch');
+const vpnFlow = document.getElementById('vpnFlow');
+const vpnNote = document.getElementById('vpnNote');
+vpnSwitch.querySelectorAll('.vpn-switch-opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    const mode = opt.getAttribute('data-mode');
+    vpnSwitch.querySelectorAll('.vpn-switch-opt').forEach(o=>o.classList.remove('active'));
+    opt.classList.add('active');
+    if(mode === 'on'){
+      vpnFlow.innerHTML = '<div class="vpn-node"><div class="lbl">Your device</div><div class="ip">102.89.44.17</div></div>' +
+        '<div class="vpn-arrow">&#8594;</div>' +
+        '<div class="vpn-node"><div class="lbl">VPN server</div><div class="ip">185.220.101.5</div></div>' +
+        '<div class="vpn-arrow">&#8594;</div>' +
+        '<div class="vpn-node"><div class="lbl">Website you visit</div><div class="ip">sees: 185.220.101.5</div></div>';
+      vpnNote.textContent = "With the VPN on, the website only ever sees the VPN server's IP address, never yours. Your own internet provider can still see that you connected to a VPN, just not what you did afterward. This is a real, meaningful layer of protection, but it is not invisibility.";
+    } else {
+      vpnFlow.innerHTML = '<div class="vpn-node exposed"><div class="lbl">Your device</div><div class="ip">102.89.44.17</div></div>' +
+        '<div class="vpn-arrow">&#8594;</div>' +
+        '<div class="vpn-node"><div class="lbl">Website you visit</div><div class="ip">sees: 102.89.44.17</div></div>';
+      vpnNote.textContent = "With the VPN off, the website you visit sees your real IP address directly. Anyone with legal access to that website's logs, or the website owner themselves if they are the very fraud ring you are investigating, can potentially trace that address back toward you.";
+    }
+  });
+});
+
+// ---------- CASE NOTE BUILDER ----------
+document.getElementById('buildNoteBtn').addEventListener('click', ()=>{
+  const ref = document.getElementById('noteRef').value || '(not set)';
+  const date = document.getElementById('noteDate').value || '(not set)';
+  const source = document.getElementById('noteSource').value || '(not set)';
+  const finding = document.getElementById('noteFinding').value || '(not set)';
+  const conf = document.getElementById('noteConfidence').value;
+  const next = document.getElementById('noteNext').value || '(not set)';
+  const out = 'CASE NOTE\n' +
+    '=========\n' +
+    'Reference:   ' + ref + '\n' +
+    'Date/time:   ' + date + '\n' +
+    'Source:      ' + source + '\n\n' +
+    'Finding:\n' + finding + '\n\n' +
+    'Confidence:  ' + conf + '\n' +
+    'Next step:   ' + next;
+  document.getElementById('notePreview').textContent = out;
+});
+
+document.getElementById('downloadNoteBtn').addEventListener('click', ()=>{
+  const content = document.getElementById('notePreview').textContent;
+  const blob = new Blob([content], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'week03-case-note.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ---------- BASE64 DEMO ----------
+document.getElementById('b64EncodeBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('encodeInput').value;
+  try{
+    document.getElementById('encodeOutput').textContent = btoa(val);
+  }catch(e){
+    document.getElementById('encodeOutput').textContent = 'Could not encode this text.';
+  }
+});
+document.getElementById('b64DecodeBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('encodeInput').value;
+  try{
+    document.getElementById('encodeOutput').textContent = atob(val);
+  }catch(e){
+    document.getElementById('encodeOutput').textContent = 'That does not look like valid Base64. Try encoding some text first, then decode the result.';
+  }
+});
+
+// ---------- SCENARIO STAGE SIM ----------
+document.querySelectorAll('.scenario').forEach(scenario=>{
+  const correct = scenario.getAttribute('data-correct');
+  const opts = scenario.querySelectorAll('.scenario-opt');
+  const fb = scenario.querySelector('.scenario-fb');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(scenario.classList.contains('answered')) return;
+      scenario.classList.add('answered');
+      const choice = opt.getAttribute('data-choice');
+      opts.forEach(o=>{
+        if(o.getAttribute('data-choice') === correct) o.classList.add('correct');
+        else if(o === opt) o.classList.add('wrong');
+      });
+      if(choice === correct){
+        fb.textContent = 'Correct. This is the stronger investigative choice at this stage.';
+      } else {
+        fb.textContent = 'Not the strongest choice here. The option highlighted in green better fits sound investigative practice at this stage. Take a moment to think through why.';
+      }
+    });
+  });
+});
+
+// ---------- SELF CHECK ----------
+function updateSelfCheck(){
+  const boxes = document.querySelectorAll('#selfCheckList input');
+  const checked = [...boxes].filter(b=>b.checked).length;
+  const result = document.getElementById('selfCheckResult');
+  if(checked === 0){ result.style.display = 'none'; return; }
+  result.style.display = 'block';
+  if(checked >= 2){
+    result.innerHTML = '<b>Worth a conversation.</b> You checked ' + checked + ' box(es). Consider mentioning this to your mentor at your next check in. This is a completely normal part of the work, not a mark against you.';
+  } else {
+    result.innerHTML = '<b>Noted.</b> You checked ' + checked + ' box. Keep an eye on this and revisit the check in periodically as the program continues.';
+  }
+}
+document.querySelectorAll('#selfCheckList input').forEach(cb=>{
+  const id = 'sacs_wk3_' + cb.id;
+  try{
+    if(localStorage.getItem(id) === 'true') cb.checked = true;
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+    updateSelfCheck();
+  });
+});
+updateSelfCheck();
+
+// ---------- TASK CHECKLIST ----------
+document.querySelectorAll('.task-row').forEach(row=>{
+  const cb = row.querySelector('.task-check');
+  const id = 'sacs_wk3_task_' + row.getAttribute('data-task');
+  try{
+    if(localStorage.getItem(id) === 'true'){ cb.checked = true; row.classList.add('done'); }
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    row.classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+
+// ---------- SIDEBAR QUICK CHECKLIST ----------
+document.querySelectorAll('.checklist-item input').forEach(cb=>{
+  const id = 'sacs_wk3_side_' + cb.id;
+  try{
+    if(localStorage.getItem(id) === 'true'){
+      cb.checked = true;
+      cb.closest('.checklist-item').classList.add('done');
+    }
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    cb.closest('.checklist-item').classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+</script>
+
+</body>
+</html>
