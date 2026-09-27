@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 04 Case File: OSINT Foundations | SACS Cyber Intelligence &amp; Investigations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1319; --panel:#171E27; --panel-alt:#1D2631; --panel-raise:#232E3A;
+    --line:#2C3846; --line-soft:#212B36; --text:#E8ECF1; --text-dim:#9AAABB; --text-faint:#65798D;
+    --amber:#E3A73A; --amber-dim:#8A6A2C; --teal:#39C6B8; --teal-dim:#1F6E66;
+    --red:#E2574C; --red-dim:#6E2A25; --green:#5FBF7A; --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--ink); color:var(--text); font-family:'IBM Plex Sans', system-ui, sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--teal-dim); color:#fff;}
+  a{color:var(--teal);}
+  h1,h2,h3,h4{font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-0.01em; margin:0 0 0.5em 0; color:#fff;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  p{margin:0 0 1em 0;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 22px;}
+
+  .topbar{background:linear-gradient(180deg, #131922 0%, #10151C 100%); border-bottom:1px solid var(--line); padding:18px 0 0 0; position:sticky; top:0; z-index:50;}
+  .topbar-inner{display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:16px; flex-wrap:wrap;}
+  .brand-block{display:flex; align-items:center; gap:16px;}
+  .stamp{border:2.5px solid var(--amber); color:var(--amber); font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:12.5px; letter-spacing:0.09em; padding:7px 12px; border-radius:4px; transform:rotate(-4deg); text-align:center; line-height:1.3; white-space:nowrap; background:rgba(227,167,58,0.06);}
+  .stamp .stamp-big{font-size:17px; display:block;}
+  .brand-text .eyebrow{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--teal); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:3px;}
+  .brand-text h1{font-size:26px; margin:0;}
+  .brand-text .sub{color:var(--text-dim); font-size:14px; margin-top:2px;}
+  .meta-strip{display:flex; gap:22px; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--text-faint); flex-wrap:wrap;}
+  .meta-strip span{margin-right:22px; margin-bottom:4px; display:inline-block;}
+  .meta-strip span b{color:var(--text-dim); font-weight:600;}
+
+  .tabs{display:flex; gap:4px; margin-top:18px; overflow-x:auto; padding-bottom:0;}
+  .tab-btn{font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:0.04em; text-transform:uppercase; background:var(--panel-alt); color:var(--text-dim); border:1px solid var(--line); border-bottom:none; padding:11px 18px; border-radius:8px 8px 0 0; cursor:pointer; white-space:nowrap; position:relative; top:1px; transition:background .15s, color .15s;}
+  .tab-btn:hover{background:var(--panel-raise); color:var(--text);}
+  .tab-btn.active{background:var(--panel); color:#fff; border-color:var(--line); border-bottom:1px solid var(--panel);}
+  .tab-btn .tag-num{color:var(--amber); margin-right:7px;}
+
+  .layout{display:flex; gap:22px; padding:26px 0 60px 0; align-items:flex-start; flex-wrap:wrap;}
+  .layout > .panel{flex:1 1 620px; min-width:0;}
+  .layout > .sidebar-col{flex:0 0 300px; width:300px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:0 var(--radius) var(--radius) var(--radius); padding:34px; min-height:420px;}
+  .section{display:none;}
+  .section.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .kicker{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--amber); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:8px;}
+  .section h2{font-size:26px; margin-bottom:6px;}
+  .lede{color:var(--text-dim); font-size:16px; max-width:740px; margin-bottom:26px;}
+  .divider{height:1px; background:var(--line-soft); margin:30px 0;}
+
+  .side-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:18px;}
+  .side-card h3{font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:var(--teal); font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  .progress-track{background:var(--line-soft); border-radius:20px; height:8px; overflow:hidden; margin:12px 0 6px 0;}
+  .progress-fill{background:linear-gradient(90deg, var(--teal-dim), var(--teal)); height:100%; width:0%; transition:width .4s ease; border-radius:20px;}
+  .progress-label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint);}
+  .glossary-item{border-bottom:1px dashed var(--line-soft); padding:9px 0; cursor:pointer;}
+  .glossary-item:last-child{border-bottom:none;}
+  .glossary-term{font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600; color:var(--text); display:flex; justify-content:space-between; align-items:center;}
+  .glossary-term .plus{color:var(--teal); font-size:15px;}
+  .glossary-def{font-size:13px; color:var(--text-dim); margin-top:6px; display:none; line-height:1.5;}
+  .glossary-item.open .glossary-def{display:block;}
+  .glossary-item.open .plus{transform:rotate(45deg); display:inline-block;}
+  .checklist-item{display:flex; align-items:flex-start; gap:9px; margin-bottom:10px; font-size:13.5px; color:var(--text-dim);}
+  .checklist-item input{margin-top:3px; accent-color:var(--teal); width:15px; height:15px; cursor:pointer;}
+  .checklist-item.done label{color:var(--text-faint); text-decoration:line-through;}
+
+  .callout{border:1px solid var(--amber-dim); background:rgba(227,167,58,0.07); border-radius:8px; padding:16px 18px; margin:20px 0; font-size:14px; color:var(--text-dim);}
+  .callout b{color:var(--amber);}
+  .callout.next{border-color:var(--teal-dim); background:rgba(57,198,184,0.06);}
+  .callout.next b{color:var(--teal);}
+  .callout.warn{border-color:var(--red-dim); background:rgba(226,87,76,0.07);}
+  .callout.warn b{color:var(--red);}
+  .callout.file{border-color:#4A6FA5; background:rgba(74,111,165,0.08);}
+  .callout.file b{color:#7FA8E0;}
+
+  .cmd-table{width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px;}
+  .cmd-table th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line);}
+  .cmd-table td{padding:10px; border-bottom:1px solid var(--line-soft); color:var(--text-dim); vertical-align:top;}
+  .cmd-table td.cmd-cell{font-family:'IBM Plex Mono',monospace; color:var(--teal); white-space:nowrap;}
+
+  .btn{font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.03em; background:var(--teal); color:#08201D; border:none; padding:11px 22px; border-radius:7px; cursor:pointer; font-weight:600; transition:background .15s;}
+  .btn:hover{background:#4FDBCB;}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--text-dim);}
+  .btn.ghost:hover{border-color:var(--teal); color:var(--teal);}
+  .btn.small{padding:7px 14px; font-size:11.5px;}
+
+  /* ===== DORK CHALLENGE CARDS ===== */
+  .dork-card{background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px;}
+  .dork-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--amber); text-transform:uppercase; letter-spacing:0.06em;}
+  .dork-scenario{font-size:14px; margin:6px 0 12px 0; color:var(--text);}
+  .dork-input{width:100%; background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:10px 13px; color:var(--teal); font-family:'IBM Plex Mono',monospace; font-size:13.5px;}
+  .dork-answer{display:none; margin-top:12px; background:var(--panel); border-left:3px solid var(--teal); border-radius:0 6px 6px 0; padding:12px 14px; font-size:13px; color:var(--text-dim);}
+  .dork-answer.show{display:block;}
+  .dork-answer .q{font-family:'IBM Plex Mono',monospace; color:var(--teal); display:block; margin-bottom:6px; font-size:13.5px;}
+  .dork-reveal-row{margin-top:10px;}
+
+  /* ===== SHODAN MOCK ===== */
+  .shodan-card{background:#0A0D10; border:1px solid #2A3543; border-radius:10px; padding:20px; margin:18px 0; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#B7F5D8;}
+  .shodan-row{margin-bottom:8px; white-space:pre-wrap;}
+  .shodan-hot{cursor:pointer; border-bottom:1px dotted var(--amber); color:#fff;}
+  .shodan-hot.found{background:rgba(227,167,58,0.15); border-bottom:1px solid var(--amber);}
+  .shodan-flag{display:none; background:var(--panel); border-left:3px solid var(--amber); color:var(--text-dim); font-family:'IBM Plex Sans',sans-serif; font-size:13px; padding:10px 13px; border-radius:0 6px 6px 0; margin:6px 0 10px 0;}
+  .shodan-flag.show{display:block;}
+
+  /* ===== FOCA SCAVENGER ===== */
+  .foca-file{background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:16px;}
+  .foca-file h4{font-size:14.5px; margin-bottom:4px;}
+  .foca-file .fname{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--teal);}
+  .foca-form label{font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em; display:block; margin:10px 0 5px 0; font-family:'IBM Plex Mono',monospace;}
+  .foca-form input[type=text]{width:100%; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:9px 12px; color:var(--text); font-size:13.5px;}
+  .foca-answer{display:none; margin-top:12px; background:var(--panel); border-left:3px solid var(--green); border-radius:0 6px 6px 0; padding:12px 14px; font-size:13px; color:var(--text-dim);}
+  .foca-answer.show{display:block;}
+
+  /* ===== MALTEGO GRAPH ===== */
+  .graph-box{background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin:18px 0; text-align:center;}
+
+  /* ===== RESEARCH PLAN BUILDER ===== */
+  .plan-form label{font-size:13px; color:var(--text-dim); display:block; margin:14px 0 6px 0; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.05em;}
+  .plan-form input[type=text], .plan-form textarea{width:100%; background:var(--panel-alt); border:1px solid var(--line); border-radius:7px; padding:11px 14px; color:var(--text); font-family:'IBM Plex Sans',sans-serif; font-size:14px;}
+  .plan-form textarea{min-height:70px; resize:vertical;}
+  .plan-check-grid{display:flex; flex-direction:column; gap:8px; margin-top:6px;}
+  .plan-check-item{display:flex; align-items:flex-start; gap:9px; background:var(--panel-alt); border:1px solid var(--line); border-radius:7px; padding:10px 13px; font-size:13.5px; color:var(--text-dim);}
+  .plan-check-item input{margin-top:3px; accent-color:var(--teal); cursor:pointer;}
+  .plan-preview{background:#0A0D10; border:1px solid #2A3543; border-radius:8px; padding:18px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#B7F5D8; margin-top:18px; white-space:pre-wrap; line-height:1.7; min-height:60px;}
+
+  .task-row{display:flex; align-items:flex-start; gap:14px; background:var(--panel-alt); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:12px;}
+  .task-check{margin-top:2px; width:18px; height:18px; accent-color:var(--teal); cursor:pointer; flex-shrink:0;}
+  .task-text b{display:block; font-size:14.5px; color:#fff; margin-bottom:3px;}
+  .task-text span{font-size:13px; color:var(--text-dim);}
+  .task-row.done .task-text b, .task-row.done .task-text span{color:var(--text-faint); text-decoration:line-through;}
+
+  footer{border-top:1px solid var(--line); padding:24px 0 40px 0; text-align:center; color:var(--text-faint); font-size:12.5px; font-family:'IBM Plex Mono', monospace;}
+
+  @media (max-width:880px){
+    .layout > .sidebar-col{flex-basis:100%; width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-inner">
+      <div class="brand-block">
+        <div class="stamp">CASE FILE<span class="stamp-big">WK 04</span></div>
+        <div class="brand-text">
+          <div class="eyebrow">SACS &middot; Cyber Intelligence &amp; Investigations Professional Track</div>
+          <h1>OSINT Foundations, Week 4</h1>
+          <div class="sub">The OSINT lifecycle, advanced search, Shodan and Censys, FOCA metadata, Maltego, and your first research plan</div>
+        </div>
+      </div>
+      <div class="meta-strip">
+        <span><b>Phase:</b> 1 of 7</span>
+        <span><b>Runtime:</b> approx 3 hours</span>
+        <span><b>Format:</b> read, click, dig, build</span>
+      </div>
+    </div>
+    <div class="tabs" id="tabBar">
+      <button class="tab-btn active" data-tab="t1"><span class="tag-num">01</span>Orientation</button>
+      <button class="tab-btn" data-tab="t2"><span class="tag-num">02</span>Google Dorking</button>
+      <button class="tab-btn" data-tab="t3"><span class="tag-num">03</span>Shodan &amp; Censys</button>
+      <button class="tab-btn" data-tab="t4"><span class="tag-num">04</span>FOCA Metadata</button>
+      <button class="tab-btn" data-tab="t5"><span class="tag-num">05</span>Maltego Intro</button>
+      <button class="tab-btn" data-tab="t6"><span class="tag-num">06</span>Research Plan</button>
+      <button class="tab-btn" data-tab="t7"><span class="tag-num">07</span>This Week's Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="layout">
+
+    <div class="panel">
+
+      <!-- ============ TAB 1: ORIENTATION ============ -->
+      <section class="section active" id="t1">
+        <div class="kicker">Phase 1 begins</div>
+        <h2>Real OSINT practice starts now</h2>
+        <p class="lede">Everything in Phase 0 was preparation. Starting this week, you are actually doing the work, real search techniques, real specialised tools, and a real research plan built against a real feeling case.</p>
+
+        <div class="callout file">
+          <b>Before you go further, make sure you have this.</b> Your mentor should have already shared a file called <span class="mono">week04_case_brief.pdf</span> with you. It describes a case involving Meridian Logistics Ltd and a vendor called Crestfield Industrial Supplies. You will use it throughout this resource, and you will draft your actual graded research plan against it in Tab 6. If you do not have it yet, ask before continuing.
+        </div>
+
+        <h3>The OSINT investigative lifecycle</h3>
+        <p>In Week 1 you saw the general intelligence cycle. OSINT work follows the same shape, but it is worth naming each stage in its OSINT specific form, because you will move through these exact stages, consciously, on every single case from here on.</p>
+
+        <table class="cmd-table">
+          <tr><th>Stage</th><th>What it means in OSINT terms</th></tr>
+          <tr><td class="cmd-cell">Define</td><td>Turn a vague worry into a specific, answerable research question. Not "is this vendor suspicious" but "does the domain, registration, and online footprint of Crestfield Industrial Supplies match a legitimate, established company."</td></tr>
+          <tr><td class="cmd-cell">Identify sources</td><td>Decide where the answer is likely to live. WHOIS records, business registries, social media, cached pages, document metadata, technical infrastructure.</td></tr>
+          <tr><td class="cmd-cell">Collect</td><td>Systematically gather from each source, in an order that makes sense, logging everything as you go using the case notes habit from Week 3.</td></tr>
+          <tr><td class="cmd-cell">Verify</td><td>Cross check every finding against at least one other independent source before you trust it. A single source is a lead, not a fact.</td></tr>
+          <tr><td class="cmd-cell">Analyse</td><td>Connect the verified findings into a picture. Does the evidence support the research question, contradict it, or leave it genuinely open.</td></tr>
+          <tr><td class="cmd-cell">Report</td><td>Write it up clearly enough that someone who was not in the room with you can understand what you found and how confident you are in it.</td></tr>
+        </table>
+
+        <div class="callout">
+          <b>What this week covers.</b> Tab 2 sharpens the Collect stage with advanced search operators. Tab 3 introduces two specialised search engines for infrastructure. Tab 4 shows you how a document's own metadata can become a source. Tab 5 gives you a first look at Maltego, a tool for visualising how everything connects. Tab 6 is where you put all of it together into an actual research plan.
+        </div>
+
+        <h3>Why the order of these stages matters</h3>
+        <p>Beginners often collapse the OSINT lifecycle into a single step in their heads: search until you find something, then stop. Professionals resist that collapse deliberately. Collecting before you have defined your question wastes time chasing details that never mattered. Analysing before you have verified means building conclusions on a foundation that might not hold. Reporting before you have properly analysed means handing someone your raw impressions dressed up as findings.</p>
+        <p>The lifecycle exists because skipping a stage does not save time, it just moves the cost of that stage to later, usually at a point where it is more expensive to fix. A research question you never properly defined tends to surface again halfway through your report, when you realise you are not actually sure what question your evidence is supposed to be answering.</p>
+
+        <p>None of these are separate skills you learn once and forget. They are habits you will keep building for the rest of the program.</p>
+      </section>
+
+      <!-- ============ TAB 2: GOOGLE DORKING ============ -->
+      <section class="section" id="t2">
+        <div class="kicker">Sharpening the collect stage</div>
+        <h2>Google dorking, search operators that actually dig</h2>
+        <p class="lede">A search operator narrows a search engine down to exactly what you mean instead of what it guesses you mean. Learn these well and a normal search engine starts behaving like a purpose built investigative tool.</p>
+
+        <table class="cmd-table">
+          <tr><th>Operator</th><th>What it does</th><th>Example</th></tr>
+          <tr><td class="cmd-cell">site:</td><td>Restricts results to one domain</td><td class="mono">site:crestfield-industrial.com</td></tr>
+          <tr><td class="cmd-cell">filetype:</td><td>Restricts results to a file type</td><td class="mono">filetype:pdf</td></tr>
+          <tr><td class="cmd-cell">"exact phrase"</td><td>Matches the exact wording, not a paraphrase</td><td class="mono">"Crestfield Industrial Supplies"</td></tr>
+          <tr><td class="cmd-cell">-exclude</td><td>Removes a term from results entirely</td><td class="mono">-site:crestfield-industrial.com</td></tr>
+          <tr><td class="cmd-cell">OR</td><td>Matches either term, useful for spelling variants</td><td class="mono">site:a.com OR site:b.com</td></tr>
+          <tr><td class="cmd-cell">intitle:</td><td>Word must appear in the page title</td><td class="mono">intitle:login</td></tr>
+          <tr><td class="cmd-cell">inurl:</td><td>Word must appear in the page address</td><td class="mono">inurl:admin</td></tr>
+          <tr><td class="cmd-cell">cache:</td><td>Shows the search engine's last saved copy of a page</td><td class="mono">cache:example.com</td></tr>
+        </table>
+
+        <h3>Why operators work the way they do</h3>
+        <p>Search engines build an index, a giant catalogue of what is on each page they have crawled, roughly analogous to the index at the back of a book. A plain keyword search asks the index "which pages mention this word." An operator asks a much narrower, structured question instead, "which pages at this specific domain, of this specific file type, mention this exact phrase." That structure is exactly why operators return sharper, smaller, more usable result sets than a plain search ever could, you are no longer asking the index a vague question and hoping the ranking algorithm guesses your intent correctly.</p>
+        <p>Two more operators worth knowing beyond the core set: <span class="mono" style="color:var(--teal);">allintitle:</span> requires every word after it to appear in the page title, useful for finding pages built specifically around a topic rather than pages that mention it in passing, and <span class="mono" style="color:var(--teal);">related:</span> finds sites similar to a domain you already know, occasionally surfacing a competitor or a linked shell company you did not know to search for directly.</p>
+
+        <div class="divider"></div>
+
+        <h3>Ten challenges, log your own answer first</h3>
+        <p class="lede" style="margin-bottom:10px;">For each scenario below, type the dork you would actually use, then reveal the model answer and compare. This becomes your dorking worksheet, downloadable at the end.</p>
+
+        <div id="dorkChallenges"></div>
+
+        <button class="btn" id="downloadDorkBtn" style="margin-top:6px;">Download my dorking worksheet</button>
+      </section>
+
+      <!-- ============ TAB 3: SHODAN & CENSYS ============ -->
+      <section class="section" id="t3">
+        <div class="kicker">Searching the internet's infrastructure</div>
+        <h2>Shodan and Censys, search engines for devices</h2>
+        <p class="lede">Google indexes web pages. Shodan and Censys index devices, servers, cameras, industrial equipment, anything connected to the internet that answers when it is asked a question. They are free to use at a basic level and completely legal, because they only surface information that was already publicly broadcasting itself.</p>
+
+        <div class="callout warn">
+          <b>The authorisation rule still applies.</b> Browsing what Shodan and Censys have already indexed is legal, you are reading a public library, not breaking into anything. Actively scanning a target yourself with a tool like Nmap is different and needs explicit authorisation. For this week's hands on lab, your authorised target is <span class="mono" style="color:var(--teal);">scanme.nmap.org</span>, a host the Nmap project itself set up and explicitly permits people to practise scanning against. Never point a scanner at anything else without clear written authorisation.
+        </div>
+
+        <h3>Why this matters for an investigation</h3>
+        <p>A device left exposed to the internet without protection is one of the most common entry points behind real incidents, an unprotected database, a default password left unchanged on a camera, a remote desktop port open to anyone. When you are investigating an organisation's security posture, or trying to understand how a fraud ring's infrastructure is put together, this is often where the story starts.</p>
+
+        <p>The scale of this problem is well documented. The Mirai botnet, one of the most disruptive cyberattacks in recent history, was built almost entirely out of ordinary internet connected cameras and routers left with their factory default passwords, devices that anyone running a basic Shodan search could have found sitting exposed months before the attack. That single pattern, easily searchable, widely ignored, took down major internet services across the United States in 2016. It remains one of the clearest illustrations of why a tool as simple as a search engine for devices carries real investigative weight.</p>
+
+        <h3>Reading a result, an illustrative example</h3>
+        <p class="lede" style="margin-bottom:10px;">Below is a mockup in the style of a Shodan result, built for teaching, not a live query. Click on each part to see what it tells an investigator.</p>
+
+        <div class="shodan-card">
+          <div class="shodan-row"><span class="shodan-hot" data-flag="1">45.33.32.156</span></div>
+          <div class="shodan-flag" id="shodanFlag1">This is the device's public IP address. Everything else in the result is information this specific device offered up about itself when Shodan's crawlers asked.</div>
+
+          <div class="shodan-row">Hostname: <span class="shodan-hot" data-flag="2">scanme.nmap.org</span></div>
+          <div class="shodan-flag" id="shodanFlag2">The domain name associated with this address. Not every device has one, but when it exists it is often the fastest way to understand what the device actually is.</div>
+
+          <div class="shodan-row">Organisation: <span class="shodan-hot" data-flag="3">Linode</span></div>
+          <div class="shodan-flag" id="shodanFlag3">The hosting provider. This tells you the device likely sits on rented cloud infrastructure rather than inside someone's own office network, which changes how you would go about requesting records on it if that ever became necessary.</div>
+
+          <div class="shodan-row">Open ports: <span class="shodan-hot" data-flag="4">22/tcp, 80/tcp</span></div>
+          <div class="shodan-flag" id="shodanFlag4">Remember these from Week 2. Port 22 is SSH, remote command line access. Port 80 is unencrypted web traffic. Knowing which doors are open tells you what services this device is actually running.</div>
+
+          <div class="shodan-row">Banner (port 22): <span class="shodan-hot" data-flag="5">SSH-2.0-OpenSSH_7.6p1</span></div>
+          <div class="shodan-flag" id="shodanFlag5">A banner is the small note a service announces about itself. This one reveals the exact software version running, which matters because older, unpatched versions are frequently how real intrusions begin. An investigator scanning a fraud ring's infrastructure watches for exactly this kind of outdated, exposed software.</div>
+        </div>
+        <div class="mono" id="shodanCounter" style="font-size:12.5px; color:var(--amber); margin-top:6px;">Fields reviewed: 0 / 5</div>
+
+        <div class="callout next">
+          <b>Your hands on lab this week.</b> Create a free Shodan account at shodan.io, then search for <span class="mono">hostname:scanme.nmap.org</span>. Separately, try Censys at search.censys.io with the same host. Compare what each tool shows you, they do not always agree, and that difference is itself worth noting in your case notes.
+        </div>
+      </section>
+
+      <!-- ============ TAB 4: FOCA METADATA ============ -->
+      <section class="section" id="t4">
+        <div class="kicker">The source hiding inside every document</div>
+        <h2>FOCA and document metadata</h2>
+        <p class="lede">Every document carries information about itself that most people never look at, who created it, what software they used, sometimes even an internal file path from the computer it was written on. FOCA is a free Windows tool built specifically to harvest this from every document it can find across a target domain, all at once.</p>
+
+        <p>You do not need FOCA installed to start this exercise. The same metadata is visible through simpler means, right click a file's Properties on Windows, use Get Info on macOS, or use a free cross platform tool like ExifTool. What matters is the habit of checking, not the specific tool.</p>
+
+        <h3>Why this data exists in the first place</h3>
+        <p>Metadata is not a mistake or a flaw, it is a normal, intended feature of how modern office software works. Word processors record an author name to support version tracking and collaboration. Templates carry file paths so the software can find related resources. None of this is designed with an outside investigator in mind, which is exactly why it so often survives untouched, the people creating these documents are focused on the visible content, not on what the file quietly carries underneath it.</p>
+        <p>Organisations that handle sensitive material professionally often run a "document sanitisation" step before publishing anything externally, stripping exactly this kind of metadata deliberately. Its absence is itself informative: a company that habitually leaks this data across its published documents likely has no such process in place at all, which can be a small but genuine signal about how seriously an organisation takes information security more broadly.</p>
+
+        <div class="callout file">
+          <b>Your two practice files.</b> Your mentor has shared <span class="mono">week04_foca_sample_report.pdf</span> and <span class="mono">week04_foca_sample_memo.docx</span> with you, two documents built in the same style as files a metadata harvest might turn up during the Crestfield investigation. Open each one's file properties and fill in what you find below.
+        </div>
+
+        <div class="foca-file">
+          <h4>File 1</h4>
+          <div class="fname">week04_foca_sample_report.pdf</div>
+          <div class="foca-form">
+            <label>Author listed in the file properties</label>
+            <input type="text" id="foca1a" placeholder="Type what you found">
+            <label>What internal detail shows up in the Subject field</label>
+            <input type="text" id="foca1b" placeholder="Type what you found">
+          </div>
+          <button class="btn ghost small" data-reveal="focaAns1" style="margin-top:12px;">Reveal answer</button>
+          <div class="foca-answer" id="focaAns1">
+            <b>Author:</b> J. Okonkwo.<br>
+            <b>Subject field:</b> it references a template pulled from an internal server path, written as <span class="mono">\\CFSVR01\shared\templates\onboarding_master_v3.dotx</span>. That single detail confirms Crestfield has an internal server named CFSVR01 and a shared drive structure, exactly the kind of pivot point that turns one document into a lead about the organisation itself.
+          </div>
+        </div>
+
+        <div class="foca-file">
+          <h4>File 2</h4>
+          <div class="fname">week04_foca_sample_memo.docx</div>
+          <div class="foca-form">
+            <label>Author listed in the file properties</label>
+            <input type="text" id="foca2a" placeholder="Type what you found">
+            <label>Who does "last modified by" show, and why might that differ from the author</label>
+            <input type="text" id="foca2b" placeholder="Type what you found">
+          </div>
+          <button class="btn ghost small" data-reveal="focaAns2" style="margin-top:12px;">Reveal answer</button>
+          <div class="foca-answer" id="focaAns2">
+            <b>Author:</b> T. Okafor. <b>Last modified by:</b> I.Nwachukwu-Finance. A different name here usually means the document was drafted by one person and edited or reviewed by another, which is completely normal, but across enough documents from the same organisation, these names start building you a real staff directory you were never handed directly.
+          </div>
+        </div>
+
+        <div class="callout next">
+          <b>Why this is a real technique, not a novelty.</b> Metadata harvesting like this has repeatedly exposed internal usernames, software versions, and network layouts of organisations who never intended to share any of it. It is one of the quietest, most reliable OSINT techniques that exists, because almost nobody thinks to scrub it before sharing a file.
+        </div>
+      </section>
+
+      <!-- ============ TAB 5: MALTEGO INTRO ============ -->
+      <section class="section" id="t5">
+        <div class="kicker">Seeing the connections, not just the facts</div>
+        <h2>A first look at Maltego</h2>
+        <p class="lede">Every technique so far in this program produces individual facts, a domain, a name, an IP address, a metadata field. Maltego's entire purpose is turning a pile of individual facts into a visual map of how they connect.</p>
+
+        <p>Maltego works with entities, things like a domain, a person, an email address, a phone number, and transforms, automated queries that take one entity and find others connected to it. Feed it a domain, run a transform, and it can pull back the IP address, the registrant email, other domains sharing that email, and lay all of it out as a connected graph in front of you.</p>
+
+        <p>The value of this over doing the same lookups manually is not speed alone, though a machine running dozens of queries in seconds is certainly faster than typing each one by hand. The real value is that a graph makes patterns visible that a list of separate findings hides. Ten domains sharing one registrant email look like ten unrelated facts in a spreadsheet. The same ten domains in a Maltego graph look like a single hub with ten spokes, and that shape is immediately, visually obvious in a way rows of text rarely are.</p>
+
+        <h3>What that looks like on this week's case</h3>
+        <div class="graph-box" id="maltegoGraphBox"></div>
+        <p class="lede" style="margin-top:10px;">This is a simplified illustration of the kind of graph a few transforms could build starting from just the Crestfield domain. Notice how one starting point branches into several new leads automatically, that branching is the entire value of link analysis software.</p>
+
+        <div class="callout next">
+          <b>Getting started for real.</b> Maltego Community Edition is free after registering an account at maltego.com. It comes with usage limits on the free tier, enough to learn on, but you will feel the ceiling if you try to run it against a large investigation. You will get full hands on practice with it in Week 7, this is just your first look at what it does and why it exists.
+        </div>
+      </section>
+
+      <!-- ============ TAB 6: RESEARCH PLAN ============ -->
+      <section class="section" id="t6">
+        <div class="kicker">Putting the whole week to work</div>
+        <h2>Building your research plan for Crestfield Industrial Supplies</h2>
+        <p class="lede">This is your actual graded deliverable for the week. Use the case brief your mentor shared, everything you have learned in Tabs 1 through 5, and the builder below to draft it properly.</p>
+
+        <h3>What separates a strong research plan from a weak one</h3>
+        <p>A weak research plan is a list of tools someone intends to try. A strong one reads almost like a hypothesis test: it states plainly what would count as evidence for the concern, what would count as evidence against it, and in what order the investigator plans to check each source so that time is not wasted chasing a low value lookup before a high value one. Mentors reading these plans are looking specifically for that structure, not just a list of tool names copied from Tab 2 through 5.</p>
+        <p>It is also worth stating your threshold for action explicitly, before you have any findings, rather than deciding after the fact what counts as suspicious enough. Deciding your threshold in advance is a small discipline that protects you from a very human bias, unconsciously lowering the bar for "suspicious enough" once you have already invested time looking for something.</p>
+
+        <div class="plan-form">
+          <label>Research question</label>
+          <textarea id="planQuestion" placeholder="What exactly are you trying to find out? Be specific.">Does the domain, registration history, and online footprint of Crestfield Industrial Supplies match a legitimate, established packaging supplier, or does it show the pattern of infrastructure built quickly for fraud?</textarea>
+
+          <label>Sources and tools you will use, tick everything you plan to check</label>
+          <div class="plan-check-grid">
+            <div class="plan-check-item"><input type="checkbox" checked> WHOIS and DNS history on both domain spellings on file</div>
+            <div class="plan-check-item"><input type="checkbox" checked> Google dorking for mentions of the company outside its own website</div>
+            <div class="plan-check-item"><input type="checkbox"> Business registry search for the company's official registration</div>
+            <div class="plan-check-item"><input type="checkbox"> Social media presence across major platforms</div>
+            <div class="plan-check-item"><input type="checkbox"> Reverse image search on any logo or staff photos found</div>
+            <div class="plan-check-item"><input type="checkbox"> Shodan or Censys check on any infrastructure tied to the domain</div>
+            <div class="plan-check-item"><input type="checkbox"> Metadata review of any documents received from the vendor</div>
+            <div class="plan-check-item"><input type="checkbox"> Wayback Machine check for how the website has changed over time</div>
+          </div>
+
+          <label>Order of operations, what you check first and why</label>
+          <textarea id="planOrder" placeholder="e.g. Start with WHOIS on both domain spellings since that alone may resolve the question quickly, then move to..."></textarea>
+
+          <label>What would count as strong enough evidence to recommend Meridian pause the relationship</label>
+          <textarea id="planThreshold" placeholder="Be specific about what combination of findings would tip this from suspicious to actionable."></textarea>
+
+          <button class="btn" id="buildPlanBtn" style="margin-top:6px;">Build my research plan</button>
+          <button class="btn ghost" id="downloadPlanBtn" style="margin-top:6px; margin-left:10px;">Download as text file</button>
+
+          <div class="plan-preview" id="planPreview">Your formatted research plan will appear here once you click "Build my research plan."</div>
+        </div>
+      </section>
+
+      <!-- ============ TAB 7: TASKS ============ -->
+      <section class="section" id="t7">
+        <div class="kicker">Before you move to Week 5</div>
+        <h2>This week's deliverables</h2>
+        <p class="lede">These match the syllabus for Phase 1, Week 4.</p>
+
+        <div class="task-row" data-task="1">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Complete the dorking worksheet</b><span>All ten challenges in Tab 2, your own attempt logged before revealing each model answer. Download and keep the finished worksheet.</span></div>
+        </div>
+        <div class="task-row" data-task="2">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Run the Shodan and Censys lab against scanme.nmap.org</b><span>Create free accounts on both, search the authorised target, and write a short summary in your case notes comparing what each tool showed you.</span></div>
+        </div>
+        <div class="task-row" data-task="3">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Open both FOCA practice files and fill in Tab 4</b><span>Use file properties, ExifTool, or FOCA itself if you have it installed. Confirm your findings against the revealed answers.</span></div>
+        </div>
+        <div class="task-row" data-task="4">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Submit your OSINT research plan</b><span>Finish and download the plan you built in Tab 6, using the actual case brief PDF as your reference. This is this week's main graded deliverable.</span></div>
+        </div>
+
+        <div class="callout next">
+          <b>Looking ahead to Week 5.</b> Next week is Social Media Intelligence, SOCMINT. You will trace a digital footprint across multiple platforms, learn platform specific investigation techniques, and put your sock puppet persona from Week 3 to its first real, supervised use.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============ SIDEBAR ============ -->
+    <div class="sidebar-col">
+      <div class="side-card">
+        <h3>Your progress</h3>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">0 of 7 sections viewed</div>
+      </div>
+
+      <div class="side-card">
+        <h3>Week 4 glossary</h3>
+        <div id="glossaryList">
+          <div class="glossary-item"><div class="glossary-term">Dork / search operator <span class="plus">+</span></div><div class="glossary-def">A special keyword or symbol, like site: or filetype:, that narrows a search engine to exactly what you mean.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Shodan / Censys <span class="plus">+</span></div><div class="glossary-def">Search engines that index internet connected devices and their exposed services, rather than web pages.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Banner <span class="plus">+</span></div><div class="glossary-def">A short message a networked service announces about itself, often revealing its exact software and version.</div></div>
+          <div class="glossary-item"><div class="glossary-term">FOCA <span class="plus">+</span></div><div class="glossary-def">A free tool that harvests metadata from documents found across a target domain, all at once.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Metadata <span class="plus">+</span></div><div class="glossary-def">Information about a file that is not part of its visible content, author, software used, edit history, sometimes location data.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Maltego transform <span class="plus">+</span></div><div class="glossary-def">An automated query that takes one piece of information and finds others connected to it, building a visual graph.</div></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Quick checklist</h3>
+        <div class="checklist-item"><input type="checkbox" id="cl1"><label for="cl1">Have the case brief PDF open</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl2"><label for="cl2">Completed all 10 dorking challenges</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl3"><label for="cl3">Reviewed all 5 Shodan fields</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl4"><label for="cl4">Checked both FOCA sample files</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl5"><label for="cl5">Built and downloaded my research plan</label></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  SACS &middot; Cyber Intelligence &amp; Investigations Professional Track &middot; Week 4 of 26 &middot; Built for live, shared screen teaching
+</footer>
+
+<script>
+// ---------- TAB SWITCHING ----------
+const tabBtns = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('.section');
+let viewedTabs = new Set(['t1']);
+const TOTAL_TABS = 7;
+
+function updateProgress(){
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  const pct = Math.round((viewedTabs.size / TOTAL_TABS) * 100);
+  fill.style.width = pct + '%';
+  label.textContent = viewedTabs.size + ' of ' + TOTAL_TABS + ' sections viewed';
+  try{ localStorage.setItem('sacs_wk4_viewed', JSON.stringify([...viewedTabs])); }catch(e){}
+}
+tabBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.getAttribute('data-tab');
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    sections.forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+    viewedTabs.add(id);
+    updateProgress();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+try{
+  const saved = JSON.parse(localStorage.getItem('sacs_wk4_viewed') || '["t1"]');
+  saved.forEach(t=>viewedTabs.add(t));
+}catch(e){}
+updateProgress();
+
+// ---------- GLOSSARY ----------
+document.querySelectorAll('.glossary-item').forEach(item=>{
+  item.addEventListener('click', ()=> item.classList.toggle('open'));
+});
+
+// ---------- DORK CHALLENGES ----------
+const dorkData = [
+  { scenario: "Find PDF files hosted anywhere on crestfield-industrial.com.", answer: "filetype:pdf site:crestfield-industrial.com", explain: "Combining site: and filetype: is one of the most common starting moves in document discovery." },
+  { scenario: "Find any page anywhere that mentions the exact company name.", answer: '"Crestfield Industrial Supplies"', explain: "Quotation marks force an exact phrase match instead of a loose keyword guess." },
+  { scenario: "Find login or admin pages on the domain.", answer: "site:crestfield-industrial.com inurl:login", explain: "inurl: catches address patterns like /login or /admin even when the page title does not mention them." },
+  { scenario: "Find complaints or scam reports about the company, without results from their own website getting in the way.", answer: '"Crestfield Industrial Supplies" scam -site:crestfield-industrial.com', explain: "The minus sign removes an entire domain from the results, clearing out noise from the company's own site." },
+  { scenario: "Search both the real domain and the lookalike domain at the same time.", answer: "site:crestfield-industrial.com OR site:crestfield-industriaI.com", explain: "OR lets you check two spelling variants in a single search instead of running two separate ones." },
+  { scenario: "See a search engine's last saved copy of the company's homepage, in case it changed recently.", answer: "cache:crestfield-industrial.com", explain: "Useful when a site has just been altered or taken down and you need to see what it looked like before." },
+  { scenario: "Find spreadsheet files that might have been accidentally left public on the domain.", answer: "filetype:xlsx site:crestfield-industrial.com", explain: "Spreadsheets often contain exactly the kind of internal data, prices, contacts, stock lists, that should never be public." },
+  { scenario: "Find subdomains of the company's site, excluding the standard www version.", answer: "site:*.crestfield-industrial.com -site:www.crestfield-industrial.com", explain: "The wildcard before the dot catches every subdomain, then the exclusion removes the one you already know about." },
+  { scenario: "Find mentions of the company specifically on Twitter/X or Facebook.", answer: '"Crestfield Industrial Supplies" (site:twitter.com OR site:facebook.com)', explain: "Combining an exact phrase with a grouped OR restricts the search to just those two platforms." },
+  { scenario: "Find documents on the domain that mention both the words invoice and bank details together.", answer: 'site:crestfield-industrial.com filetype:pdf "bank details"', explain: "Stacking site:, filetype:, and an exact phrase together is where dorking really starts to earn its keep." },
+];
+
+const dorkContainer = document.getElementById('dorkChallenges');
+dorkData.forEach((d, i)=>{
+  const card = document.createElement('div');
+  card.className = 'dork-card';
+  card.innerHTML =
+    '<div class="dork-num">Challenge ' + (i+1) + ' of 10</div>' +
+    '<div class="dork-scenario">' + d.scenario + '</div>' +
+    '<input type="text" class="dork-input mono" id="dorkInput' + i + '" placeholder="Type the dork you would use">' +
+    '<div class="dork-reveal-row"><button class="btn ghost small" data-idx="' + i + '">Reveal model answer</button></div>' +
+    '<div class="dork-answer" id="dorkAnswer' + i + '"><span class="q">' + d.answer + '</span>' + d.explain + '</div>';
+  dorkContainer.appendChild(card);
+});
+dorkContainer.addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-idx]');
+  if(!btn) return;
+  const idx = btn.getAttribute('data-idx');
+  document.getElementById('dorkAnswer' + idx).classList.add('show');
+});
+
+document.getElementById('downloadDorkBtn').addEventListener('click', ()=>{
+  let out = 'WEEK 4 GOOGLE DORKING WORKSHEET\n================================\n\n';
+  dorkData.forEach((d, i)=>{
+    const mine = document.getElementById('dorkInput' + i).value || '(no answer typed)';
+    out += 'Challenge ' + (i+1) + ': ' + d.scenario + '\n';
+    out += 'My answer:    ' + mine + '\n';
+    out += 'Model answer: ' + d.answer + '\n\n';
+  });
+  const blob = new Blob([out], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'week04-dorking-worksheet.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ---------- SHODAN MOCK ----------
+let shodanFound = new Set();
+document.querySelectorAll('.shodan-hot').forEach(hot=>{
+  hot.addEventListener('click', ()=>{
+    hot.classList.add('found');
+    const n = hot.getAttribute('data-flag');
+    shodanFound.add(n);
+    const box = document.getElementById('shodanFlag' + n);
+    if(box) box.classList.add('show');
+    const counter = document.getElementById('shodanCounter');
+    counter.textContent = 'Fields reviewed: ' + shodanFound.size + ' / 5';
+    if(shodanFound.size === 5){ counter.textContent += '. Full result read.'; }
+  });
+});
+
+// ---------- FOCA REVEAL BUTTONS ----------
+document.querySelectorAll('button[data-reveal]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.getElementById(btn.getAttribute('data-reveal')).classList.add('show');
+  });
+});
+
+// ---------- MALTEGO SVG GRAPH ----------
+document.getElementById('maltegoGraphBox').innerHTML =
+  '<svg viewBox="0 0 640 260" width="100%" style="max-width:600px; height:auto;">' +
+  '<line x1="320" y1="130" x2="120" y2="50" stroke="#2C3846" stroke-width="2"/>' +
+  '<line x1="320" y1="130" x2="120" y2="210" stroke="#2C3846" stroke-width="2"/>' +
+  '<line x1="320" y1="130" x2="520" y2="50" stroke="#2C3846" stroke-width="2"/>' +
+  '<line x1="320" y1="130" x2="520" y2="210" stroke="#2C3846" stroke-width="2"/>' +
+  '<line x1="520" y1="50" x2="520" y2="210" stroke="#2C3846" stroke-width="1.5" stroke-dasharray="4 3"/>' +
+  '<circle cx="320" cy="130" r="34" fill="#1D2631" stroke="#39C6B8" stroke-width="2"/>' +
+  '<text x="320" y="126" text-anchor="middle" fill="#fff" font-family="IBM Plex Mono, monospace" font-size="10">crestfield-</text>' +
+  '<text x="320" y="139" text-anchor="middle" fill="#fff" font-family="IBM Plex Mono, monospace" font-size="10">industrial.com</text>' +
+  '<circle cx="120" cy="50" r="28" fill="#1D2631" stroke="#E3A73A" stroke-width="2"/>' +
+  '<text x="120" y="46" text-anchor="middle" fill="#E3A73A" font-family="IBM Plex Mono, monospace" font-size="9">registrant</text>' +
+  '<text x="120" y="58" text-anchor="middle" fill="#E3A73A" font-family="IBM Plex Mono, monospace" font-size="9">email</text>' +
+  '<circle cx="120" cy="210" r="28" fill="#1D2631" stroke="#9AAABB" stroke-width="2"/>' +
+  '<text x="120" y="206" text-anchor="middle" fill="#9AAABB" font-family="IBM Plex Mono, monospace" font-size="9">nameserver</text>' +
+  '<text x="120" y="218" text-anchor="middle" fill="#9AAABB" font-family="IBM Plex Mono, monospace" font-size="9">provider</text>' +
+  '<circle cx="520" cy="50" r="28" fill="#1D2631" stroke="#E2574C" stroke-width="2"/>' +
+  '<text x="520" y="46" text-anchor="middle" fill="#E2574C" font-family="IBM Plex Mono, monospace" font-size="9">crestfield-</text>' +
+  '<text x="520" y="58" text-anchor="middle" fill="#E2574C" font-family="IBM Plex Mono, monospace" font-size="8">industriaI.com</text>' +
+  '<circle cx="520" cy="210" r="28" fill="#1D2631" stroke="#5FBF7A" stroke-width="2"/>' +
+  '<text x="520" y="206" text-anchor="middle" fill="#5FBF7A" font-family="IBM Plex Mono, monospace" font-size="9">hosting</text>' +
+  '<text x="520" y="218" text-anchor="middle" fill="#5FBF7A" font-family="IBM Plex Mono, monospace" font-size="9">IP address</text>' +
+  '</svg>';
+
+// ---------- RESEARCH PLAN BUILDER ----------
+document.getElementById('buildPlanBtn').addEventListener('click', ()=>{
+  const question = document.getElementById('planQuestion').value || '(not set)';
+  const order = document.getElementById('planOrder').value || '(not set)';
+  const threshold = document.getElementById('planThreshold').value || '(not set)';
+  const checks = [...document.querySelectorAll('.plan-check-item')].map(item=>{
+    const cb = item.querySelector('input');
+    const label = item.textContent.trim();
+    return (cb.checked ? '[x] ' : '[ ] ') + label;
+  }).join('\n');
+  const out = 'OSINT RESEARCH PLAN, CASE CII-2026-0104\n' +
+    '========================================\n\n' +
+    'Research question:\n' + question + '\n\n' +
+    'Sources and tools planned:\n' + checks + '\n\n' +
+    'Order of operations:\n' + order + '\n\n' +
+    'Threshold for recommending action:\n' + threshold;
+  document.getElementById('planPreview').textContent = out;
+});
+document.getElementById('downloadPlanBtn').addEventListener('click', ()=>{
+  const content = document.getElementById('planPreview').textContent;
+  const blob = new Blob([content], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'week04-research-plan.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ---------- TASK CHECKLIST ----------
+document.querySelectorAll('.task-row').forEach(row=>{
+  const cb = row.querySelector('.task-check');
+  const id = 'sacs_wk4_task_' + row.getAttribute('data-task');
+  try{ if(localStorage.getItem(id) === 'true'){ cb.checked = true; row.classList.add('done'); } }catch(e){}
+  cb.addEventListener('change', ()=>{
+    row.classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+
+// ---------- SIDEBAR QUICK CHECKLIST ----------
+document.querySelectorAll('.checklist-item input').forEach(cb=>{
+  const id = 'sacs_wk4_side_' + cb.id;
+  try{
+    if(localStorage.getItem(id) === 'true'){ cb.checked = true; cb.closest('.checklist-item').classList.add('done'); }
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    cb.closest('.checklist-item').classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+</script>
+
+</body>
+</html>
