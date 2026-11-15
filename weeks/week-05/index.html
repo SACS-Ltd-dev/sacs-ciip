@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 05 Case File: SOCMINT | SACS Cyber Intelligence &amp; Investigations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1319; --panel:#171E27; --panel-alt:#1D2631; --panel-raise:#232E3A;
+    --line:#2C3846; --line-soft:#212B36; --text:#E8ECF1; --text-dim:#9AAABB; --text-faint:#65798D;
+    --amber:#E3A73A; --amber-dim:#8A6A2C; --teal:#39C6B8; --teal-dim:#1F6E66;
+    --red:#E2574C; --red-dim:#6E2A25; --green:#5FBF7A; --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--ink); color:var(--text); font-family:'IBM Plex Sans', system-ui, sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--teal-dim); color:#fff;}
+  a{color:var(--teal);}
+  h1,h2,h3,h4{font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-0.01em; margin:0 0 0.5em 0; color:#fff;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  p{margin:0 0 1em 0;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 22px;}
+
+  .topbar{background:linear-gradient(180deg, #131922 0%, #10151C 100%); border-bottom:1px solid var(--line); padding:18px 0 0 0; position:sticky; top:0; z-index:50;}
+  .topbar-inner{display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:16px; flex-wrap:wrap;}
+  .brand-block{display:flex; align-items:center; gap:16px;}
+  .stamp{border:2.5px solid var(--amber); color:var(--amber); font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:12.5px; letter-spacing:0.09em; padding:7px 12px; border-radius:4px; transform:rotate(-4deg); text-align:center; line-height:1.3; white-space:nowrap; background:rgba(227,167,58,0.06);}
+  .stamp .stamp-big{font-size:17px; display:block;}
+  .brand-text .eyebrow{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--teal); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:3px;}
+  .brand-text h1{font-size:26px; margin:0;}
+  .brand-text .sub{color:var(--text-dim); font-size:14px; margin-top:2px;}
+  .meta-strip{display:flex; gap:22px; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--text-faint); flex-wrap:wrap;}
+  .meta-strip span{margin-right:22px; margin-bottom:4px; display:inline-block;}
+  .meta-strip span b{color:var(--text-dim); font-weight:600;}
+
+  .tabs{display:flex; gap:4px; margin-top:18px; overflow-x:auto; padding-bottom:0;}
+  .tab-btn{font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:0.04em; text-transform:uppercase; background:var(--panel-alt); color:var(--text-dim); border:1px solid var(--line); border-bottom:none; padding:11px 18px; border-radius:8px 8px 0 0; cursor:pointer; white-space:nowrap; position:relative; top:1px; transition:background .15s, color .15s;}
+  .tab-btn:hover{background:var(--panel-raise); color:var(--text);}
+  .tab-btn.active{background:var(--panel); color:#fff; border-color:var(--line); border-bottom:1px solid var(--panel);}
+  .tab-btn .tag-num{color:var(--amber); margin-right:7px;}
+
+  .layout{display:flex; gap:22px; padding:26px 0 60px 0; align-items:flex-start; flex-wrap:wrap;}
+  .layout > .panel{flex:1 1 620px; min-width:0;}
+  .layout > .sidebar-col{flex:0 0 300px; width:300px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:0 var(--radius) var(--radius) var(--radius); padding:34px; min-height:420px;}
+  .section{display:none;}
+  .section.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .kicker{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--amber); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:8px;}
+  .section h2{font-size:26px; margin-bottom:6px;}
+  .lede{color:var(--text-dim); font-size:16px; max-width:740px; margin-bottom:26px;}
+  .divider{height:1px; background:var(--line-soft); margin:30px 0;}
+
+  .side-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:18px;}
+  .side-card h3{font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:var(--teal); font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  .progress-track{background:var(--line-soft); border-radius:20px; height:8px; overflow:hidden; margin:12px 0 6px 0;}
+  .progress-fill{background:linear-gradient(90deg, var(--teal-dim), var(--teal)); height:100%; width:0%; transition:width .4s ease; border-radius:20px;}
+  .progress-label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint);}
+  .glossary-item{border-bottom:1px dashed var(--line-soft); padding:9px 0; cursor:pointer;}
+  .glossary-item:last-child{border-bottom:none;}
+  .glossary-term{font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600; color:var(--text); display:flex; justify-content:space-between; align-items:center;}
+  .glossary-term .plus{color:var(--teal); font-size:15px;}
+  .glossary-def{font-size:13px; color:var(--text-dim); margin-top:6px; display:none; line-height:1.5;}
+  .glossary-item.open .glossary-def{display:block;}
+  .glossary-item.open .plus{transform:rotate(45deg); display:inline-block;}
+  .checklist-item{display:flex; align-items:flex-start; gap:9px; margin-bottom:10px; font-size:13.5px; color:var(--text-dim);}
+  .checklist-item input{margin-top:3px; accent-color:var(--teal); width:15px; height:15px; cursor:pointer;}
+  .checklist-item.done label{color:var(--text-faint); text-decoration:line-through;}
+
+  .callout{border:1px solid var(--amber-dim); background:rgba(227,167,58,0.07); border-radius:8px; padding:16px 18px; margin:20px 0; font-size:14px; color:var(--text-dim);}
+  .callout b{color:var(--amber);}
+  .callout.next{border-color:var(--teal-dim); background:rgba(57,198,184,0.06);}
+  .callout.next b{color:var(--teal);}
+  .callout.warn{border-color:var(--red-dim); background:rgba(226,87,76,0.07);}
+  .callout.warn b{color:var(--red);}
+  .callout.file{border-color:#4A6FA5; background:rgba(74,111,165,0.08);}
+  .callout.file b{color:#7FA8E0;}
+
+  .cmd-table{width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px;}
+  .cmd-table th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line);}
+  .cmd-table td{padding:10px; border-bottom:1px solid var(--line-soft); color:var(--text-dim); vertical-align:top;}
+  .cmd-table td.cmd-cell{font-family:'IBM Plex Mono',monospace; color:var(--teal); white-space:nowrap;}
+
+  .btn{font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.03em; background:var(--teal); color:#08201D; border:none; padding:11px 22px; border-radius:7px; cursor:pointer; font-weight:600; transition:background .15s;}
+  .btn:hover{background:#4FDBCB;}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--text-dim);}
+  .btn.ghost:hover{border-color:var(--teal); color:var(--teal);}
+  .btn.small{padding:7px 14px; font-size:11.5px;}
+  .btn:disabled{opacity:0.5; cursor:default;}
+
+  .platform-grid{display:flex; flex-wrap:wrap; gap:14px; margin:18px 0;}
+  .platform-card{flex:1 1 calc(50% - 7px); min-width:250px; background:var(--panel-alt); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; cursor:pointer; transition:border-color .15s;}
+  .platform-card:hover{border-color:var(--teal-dim);}
+  .platform-card.open{border-color:var(--teal); background:var(--panel-raise);}
+  .platform-head{display:flex; justify-content:space-between; align-items:center;}
+  .platform-head h4{font-size:15px; margin:0; color:#fff;}
+  .platform-tag{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--amber); border:1px solid var(--amber-dim); border-radius:4px; padding:2px 8px;}
+  .platform-detail{display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);}
+  .platform-card.open .platform-detail{display:block;}
+  .platform-detail ul{margin:0; padding-left:18px; font-size:13px; color:var(--text-dim);}
+  .platform-detail li{margin-bottom:6px;}
+
+  .corr-box{background:#0A0D10; border:1px solid #2A3543; border-radius:10px; padding:20px; margin:18px 0; font-family:'IBM Plex Mono',monospace; font-size:13px;}
+  .corr-input-row{display:flex; gap:10px; margin-bottom:14px;}
+  .corr-input-row input{flex:1; background:var(--panel-alt); border:1px solid var(--line); border-radius:6px; padding:9px 12px; color:var(--teal); font-family:'IBM Plex Mono',monospace; font-size:13.5px;}
+  .corr-row{display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #1A2129; color:var(--text-dim);}
+  .corr-row .site{color:#B7F5D8;}
+  .corr-row .status.found{color:var(--green);}
+  .corr-row .status.notfound{color:var(--text-faint);}
+  .corr-status-line{margin-top:12px; color:var(--amber); font-size:12.5px;}
+
+  .tg-mock{background:#17212B; border:1px solid #223140; border-radius:10px; padding:20px; margin:18px 0; font-family:'IBM Plex Sans',sans-serif; color:#E1E7EC;}
+  .tg-header{display:flex; align-items:center; gap:12px; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #223140;}
+  .tg-avatar{width:44px; height:44px; border-radius:50%; background:#2B5278; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; flex-shrink:0;}
+  .tg-name{font-weight:600; font-size:15px;}
+  .tg-meta{font-size:12.5px; color:#8A97A3;}
+  .tg-hot{cursor:pointer; border-bottom:1px dotted #E3A73A; color:#fff;}
+  .tg-hot.found{background:rgba(227,167,58,0.15); border-bottom:1px solid #E3A73A;}
+  .tg-flag{display:none; background:#1D2631; border-left:3px solid #E3A73A; color:var(--text-dim); font-size:13px; padding:10px 13px; border-radius:0 6px 6px 0; margin:8px 0;}
+  .tg-flag.show{display:block;}
+  .tg-row{margin-bottom:10px; font-size:13.5px;}
+
+  .profile-mock{background:#F3F1EC; color:#1A1A1A; border-radius:10px; overflow:hidden; margin:16px 0; border:1px solid #C9C4B6; font-family:'IBM Plex Sans', sans-serif;}
+  .profile-banner{height:46px;}
+  .profile-main{padding:0 20px 18px 20px; position:relative;}
+  .profile-pic{width:60px; height:60px; border-radius:50%; background:#D8D2C2; border:4px solid #F3F1EC; margin-top:-30px; display:flex; align-items:center; justify-content:center; font-size:22px; color:#7A7362;}
+  .profile-hot{cursor:pointer; border-bottom:2px dotted #C0392B; padding:1px 2px;}
+  .profile-hot.found{background:#FBE2DE; border-bottom:2px solid #C0392B;}
+  .profile-flag{display:none; background:#C0392B; color:#fff; font-size:12.5px; font-family:'IBM Plex Sans',sans-serif; padding:10px 12px; border-radius:6px; margin:6px 0; line-height:1.4;}
+  .profile-flag.show{display:block;}
+  .profile-name{font-size:16px; font-weight:700; margin-top:6px;}
+  .profile-handle{font-size:12.5px; color:#6B6555;}
+  .profile-row{font-size:12.5px; color:#3A3A3A; margin-top:6px;}
+  .platform-label{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--amber); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;}
+
+  .acc-item{border:1px solid var(--line); border-radius:8px; margin-bottom:10px; overflow:hidden; background:var(--panel-alt);}
+  .acc-head{padding:14px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:14.5px;}
+  .acc-head .chev{color:var(--teal); transition:transform .2s; font-size:13px;}
+  .acc-item.open .chev{transform:rotate(90deg);}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+  .acc-item.open .acc-body{max-height:600px;}
+  .acc-body-inner{padding:0 18px 18px 18px; font-size:14px; color:var(--text-dim);}
+  .acc-body-inner ul{margin:8px 0 0 0; padding-left:20px;}
+  .acc-body-inner li{margin-bottom:6px;}
+
+  .report-form label{font-size:13px; color:var(--text-dim); display:block; margin:14px 0 6px 0; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.05em;}
+  .report-form input[type=text], .report-form textarea{width:100%; background:var(--panel-alt); border:1px solid var(--line); border-radius:7px; padding:11px 14px; color:var(--text); font-family:'IBM Plex Sans',sans-serif; font-size:14px;}
+  .report-form textarea{min-height:70px; resize:vertical;}
+  .report-preview{background:#0A0D10; border:1px solid #2A3543; border-radius:8px; padding:18px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#B7F5D8; margin-top:18px; white-space:pre-wrap; line-height:1.7; min-height:60px;}
+
+  .task-row{display:flex; align-items:flex-start; gap:14px; background:var(--panel-alt); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:12px;}
+  .task-check{margin-top:2px; width:18px; height:18px; accent-color:var(--teal); cursor:pointer; flex-shrink:0;}
+  .task-text b{display:block; font-size:14.5px; color:#fff; margin-bottom:3px;}
+  .task-text span{font-size:13px; color:var(--text-dim);}
+  .task-row.done .task-text b, .task-row.done .task-text span{color:var(--text-faint); text-decoration:line-through;}
+
+  footer{border-top:1px solid var(--line); padding:24px 0 40px 0; text-align:center; color:var(--text-faint); font-size:12.5px; font-family:'IBM Plex Mono', monospace;}
+
+  @media (max-width:880px){
+    .layout > .sidebar-col{flex-basis:100%; width:100%;}
+    .platform-card{flex-basis:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-inner">
+      <div class="brand-block">
+        <div class="stamp">CASE FILE<span class="stamp-big">WK 05</span></div>
+        <div class="brand-text">
+          <div class="eyebrow">SACS &middot; Cyber Intelligence &amp; Investigations Professional Track</div>
+          <h1>SOCMINT, Week 5</h1>
+          <div class="sub">Social media intelligence, platform playbooks, username correlation, Telegram, and your first full profile build</div>
+        </div>
+      </div>
+      <div class="meta-strip">
+        <span><b>Phase:</b> 1 of 7</span>
+        <span><b>Runtime:</b> approx 3 hours</span>
+        <span><b>Format:</b> read, click, trace, build</span>
+      </div>
+    </div>
+    <div class="tabs" id="tabBar">
+      <button class="tab-btn active" data-tab="t1"><span class="tag-num">01</span>Orientation</button>
+      <button class="tab-btn" data-tab="t2"><span class="tag-num">02</span>Rules &amp; Limits</button>
+      <button class="tab-btn" data-tab="t3"><span class="tag-num">03</span>Platform Playbook</button>
+      <button class="tab-btn" data-tab="t4"><span class="tag-num">04</span>Username Correlation</button>
+      <button class="tab-btn" data-tab="t5"><span class="tag-num">05</span>Telegram OSINT</button>
+      <button class="tab-btn" data-tab="t6"><span class="tag-num">06</span>Build The Profile</button>
+      <button class="tab-btn" data-tab="t7"><span class="tag-num">07</span>This Week's Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="layout">
+
+    <div class="panel">
+
+      <!-- ============ TAB 1: ORIENTATION ============ -->
+      <section class="section active" id="t1">
+        <div class="kicker">Where the trail picks up</div>
+        <h2>From a name to a person</h2>
+        <p class="lede">Last week you found the domain, the metadata, and the infrastructure. This week you go looking for the human being behind Crestfield Industrial Supplies, using nothing but what people voluntarily put online about themselves.</p>
+
+        <p>While practising the dorking techniques from Week 4, imagine you turned up something new, a small business directory listing that names a "Managing Director, Crestfield Industrial Supplies" as one Tunde Bakare. No phone number, no photo, just a name attached to a company. That single name is your starting point for this week's entire practice exercise.</p>
+
+        <div class="callout file">
+          <b>About the practice subject.</b> Tunde Bakare and every social profile you will see in this resource are entirely fictional, built by SACS purely for training. You are not researching a real person. The techniques, however, are exactly what you would use on a real, authorised case.
+        </div>
+
+        <h3>What SOCMINT actually is</h3>
+        <p>Social Media Intelligence, SOCMINT, is the practice of gathering and analysing publicly available information from social platforms to answer a specific investigative question. It is a subset of OSINT, narrowed to the platforms where people voluntarily reveal the most about their real lives, who they know, where they go, what they believe, and increasingly, what they are trying to hide.</p>
+
+        <p>Remember Ramon Abbas from Week 1. His own Instagram activity, posted voluntarily to impress an audience, became some of the strongest evidence against him. That is SOCMINT working exactly as intended, patient, methodical, entirely open source.</p>
+
+        <div class="callout next">
+          <b>How this week is laid out.</b> Tab 2 sets the legal and ethical limits before you touch a single platform. Tab 3 walks through technique differences across six major platforms. Tab 4 covers correlating a username or email across the wider internet. Tab 5 gives Telegram its own space, since it behaves differently from everything else. Tab 6 is where you actually build Tunde Bakare's profile and write it up, your real deliverable for the week.
+        </div>
+
+        <h3>The habit underneath every technique this week</h3>
+        <p>SOCMINT rewards patience far more than cleverness. A single Instagram photo rarely proves anything on its own. What actually builds a case is the accumulation of small, individually weak signals that, taken together, stop looking like coincidence. An account created recently is weak on its own, most real people join new platforms too. The same account using a stock photo is still weak alone, plenty of privacy conscious people do that deliberately. But a recently created account, using a stock photo, with almost no connections, claiming a senior role it has no history for, stops looking like any one of those things and starts looking like a pattern.</p>
+        <p>This is the single most important discipline to bring into Tab 6. Do not stop at the first suspicious detail and declare the case solved. Check every platform you have access to, log every finding regardless of how minor it seems in isolation, and let the pattern across all of them do the actual persuading.</p>
+      </section>
+
+      <!-- ============ TAB 2: RULES & LIMITS ============ -->
+      <section class="section" id="t2">
+        <div class="kicker">Before you touch a single platform</div>
+        <h2>Platform rules and legal limits</h2>
+        <p class="lede">Everything technically possible in SOCMINT is not automatically permitted. This tab sets the boundary before Tab 3 hands you the technique.</p>
+
+        <div class="acc-item" data-acc="1">
+          <div class="acc-head"><span>Public does not mean unlimited</span><span class="chev">&#9654;</span></div>
+          <div class="acc-body"><div class="acc-body-inner">
+            <p>A person posting publicly has accepted that other people, including investigators, may view what they posted. They have not automatically consented to it being scraped in bulk, stored indefinitely, republished, or used to harass them. Manual, individual browsing of public content for a specific investigative purpose sits in very different territory from automated mass collection.</p>
+          </div></div>
+        </div>
+        <div class="acc-item" data-acc="2">
+          <div class="acc-head"><span>Terms of service still matter</span><span class="chev">&#9654;</span></div>
+          <div class="acc-body"><div class="acc-body-inner">
+            <p>Almost every major platform's terms of service prohibit automated scraping, creating fake accounts to deceive users, or using the platform to harass someone. Viewing a public profile manually rarely breaks any platform rule. Running an automated script to harvest thousands of profiles usually does. Know which side of that line your technique sits on before you use it.</p>
+          </div></div>
+        </div>
+        <div class="acc-item" data-acc="3">
+          <div class="acc-head"><span>Your persona rules from Week 3 are now live</span><span class="chev">&#9654;</span></div>
+          <div class="acc-body"><div class="acc-body-inner">
+            <p>This is the first week you may actually use the investigation persona you built. Everything from Week 3 applies in full: no reused photos, no personal details, correct browser container, VPN active. If you have not finished setting that up properly, do it before starting Tab 6.</p>
+          </div></div>
+        </div>
+        <div class="acc-item" data-acc="4">
+          <div class="acc-head"><span>Data protection applies even to public information</span><span class="chev">&#9654;</span></div>
+          <div class="acc-body"><div class="acc-body-inner">
+            <p>Under the NDPA 2023, information about an identifiable person is personal data whether or not it was posted publicly. Collecting it for a specific, legitimate investigative purpose and handling it carefully, as covered in Week 1, is generally sound practice. Collecting it out of curiosity, or holding onto it longer than the case requires, is not.</p>
+          </div></div>
+        </div>
+
+        <div class="callout warn">
+          <b>One firm line.</b> Never use a persona to send a friend request, direct message, or any form of contact to a real subject without explicit authorisation from your mentor and a clear investigative justification. Passive observation of public content is very different from active engagement, and active engagement carries far more legal and ethical weight. This week's practice exercise is entirely passive observation of a fictional subject.
+        </div>
+
+        <h3>Why the passive versus active line matters so much</h3>
+        <p>Sending a message, even an innocent seeming one, to a real subject changes the entire legal and ethical character of what you are doing. Passive observation of something a person chose to post publicly is one thing. Actively reaching out under a false identity to elicit information a person would not otherwise share is a form of deception that courts, platforms, and regulators treat very differently, and that this program treats very differently too. It is also simply less reliable evidence, a subject who suspects they are being approached by an investigator, even unknowingly, may behave differently than they would under ordinary observation, contaminating the very findings you were trying to gather.</p>
+      </section>
+
+      <!-- ============ TAB 3: PLATFORM PLAYBOOK ============ -->
+      <section class="section" id="t3">
+        <div class="kicker">Different platform, different technique</div>
+        <h2>The six platform playbook</h2>
+        <p class="lede">Every platform reveals different things, in different ways, to people who know where to look. Click each card.</p>
+
+        <p>It helps to think of each platform as having its own default privacy posture, baked in by how the product was designed rather than by anything an individual user chose. A platform built around professional identity, like LinkedIn, defaults toward openness because visibility is the entire point of the product. A platform built around private messaging, like Telegram, defaults toward closure, and what leaks through publicly is often unintentional. Knowing a platform's default posture tells you, before you even open it, roughly how much you should expect to find versus how much extra effort it will take to find anything at all.</p>
+
+        <div class="platform-grid" id="platformGrid">
+          <div class="platform-card" data-p="li"><div class="platform-head"><h4>LinkedIn</h4><div class="platform-tag">Professional</div></div>
+            <div class="platform-detail"><ul>
+              <li>Employment history and gaps often reveal more than the stated job title itself</li>
+              <li>Shared connections can link a subject to a wider network worth mapping</li>
+              <li>Endorsements and recommendations sometimes name people not mentioned anywhere else</li>
+              <li>A profile created very recently, with few connections, for someone claiming a senior role, is itself a finding</li>
+            </ul></div>
+          </div>
+          <div class="platform-card" data-p="tw"><div class="platform-head"><h4>X (Twitter)</h4><div class="platform-tag">Real time</div></div>
+            <div class="platform-detail"><ul>
+              <li>Advanced search operators narrow by date, account, and even replies to a specific post</li>
+              <li>A thread's full history often survives even if the original account later deletes individual posts, through quote posts and replies</li>
+              <li>Who an account follows is frequently more revealing than who follows it back</li>
+              <li>Posting times across weeks can hint at a real timezone, regardless of a claimed location</li>
+            </ul></div>
+          </div>
+          <div class="platform-card" data-p="ig"><div class="platform-head"><h4>Instagram</h4><div class="platform-tag">Visual</div></div>
+            <div class="platform-detail"><ul>
+              <li>Geotags on photos, when present, can place a subject at a specific location and date</li>
+              <li>Being tagged in other people's photos reveals a social circle the subject does not control</li>
+              <li>Story highlights often persist long after the original 24 hour story expired</li>
+              <li>Backgrounds, reflections, and shadows in photos can be analysed the same way you practised in Week 1</li>
+            </ul></div>
+          </div>
+          <div class="platform-card" data-p="fb"><div class="platform-head"><h4>Facebook</h4><div class="platform-tag">Personal</div></div>
+            <div class="platform-detail"><ul>
+              <li>The About section, when public, often lists a work history that can be cross checked elsewhere</li>
+              <li>Mutual friends, when visible, can connect a subject to other people already of interest</li>
+              <li>Public group memberships reveal interests and affiliations a subject may not advertise elsewhere</li>
+              <li>Older posts, even years old, frequently remain indexed and searchable long after they are forgotten</li>
+            </ul></div>
+          </div>
+          <div class="platform-card" data-p="tt"><div class="platform-head"><h4>TikTok</h4><div class="platform-tag">Short form</div></div>
+            <div class="platform-detail"><ul>
+              <li>Background audio, locations, and other accounts tagged in a video can all be pivoted on</li>
+              <li>Comment sections sometimes reveal a subject's real name or relationships through friends tagging them</li>
+              <li>A sound or hashtag trend timestamp can help date a video even without an explicit post date</li>
+              <li>Duet and stitch videos can reveal a subject's connections to other creators</li>
+            </ul></div>
+          </div>
+          <div class="platform-card" data-p="tg"><div class="platform-head"><h4>Telegram</h4><div class="platform-tag">Different rules</div></div>
+            <div class="platform-detail"><ul>
+              <li>Public channels and groups can often be previewed without joining, unlike most other platforms</li>
+              <li>Usernames are unique platform wide, making correlation with other platforms more reliable</li>
+              <li>Covered in full depth in Tab 5, since Telegram's structure genuinely differs from the rest</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <b>The pattern underneath all six.</b> No single platform tells the whole story. A LinkedIn gap plus an Instagram geotag plus a Facebook mutual friend, none of them conclusive alone, can together build a picture strong enough to act on. This is exactly why Tab 6 asks you to check every platform rather than stopping at the first one that looks promising.
+        </div>
+      </section>
+
+      <!-- ============ TAB 4: USERNAME CORRELATION ============ -->
+      <section class="section" id="t4">
+        <div class="kicker">One handle, many platforms</div>
+        <h2>Username and email correlation</h2>
+        <p class="lede">Most people reuse the same username, or a close variant of it, across many platforms without thinking twice. Tools like Sherlock and WhatsMyName exploit exactly that habit, checking a single username against hundreds of sites in one pass.</p>
+
+        <h3>Try a simulated correlation search</h3>
+        <p class="lede" style="margin-bottom:10px;">This mimics what Sherlock does from your own terminal. Type a username or use the one already filled in, then run the search.</p>
+
+        <div class="corr-box">
+          <div class="corr-input-row">
+            <input type="text" id="corrUsername" value="tundebakare_ind" class="mono">
+            <button class="btn small" id="corrRunBtn">Run search</button>
+          </div>
+          <div id="corrResults"></div>
+          <div class="corr-status-line" id="corrStatus"></div>
+        </div>
+
+        <div class="callout next">
+          <b>Reading a result like this.</b> Found on X, Instagram, and Telegram but nowhere else, especially nowhere with a longer history, such as an old forum or a gaming platform, often points to an identity built specifically and recently for one purpose. A username with a long tail across dozens of older, unrelated services usually belongs to someone with a genuinely long standing online presence. The shape of the results matters as much as the results themselves.
+        </div>
+
+        <h3>Email correlation</h3>
+        <p>An email address can be checked too, without ever attempting to access the account itself. Two free, legitimate techniques:</p>
+        <table class="cmd-table">
+          <tr><th>Technique</th><th>What it tells you</th></tr>
+          <tr><td class="cmd-cell">Gravatar lookup</td><td>Many people unknowingly have a Gravatar image linked to their email from years ago, sometimes revealing an old photo or username tied to that address.</td></tr>
+          <tr><td class="cmd-cell">Have I Been Pwned</td><td>A free, legitimate service that shows which known data breaches an email address has appeared in, without exposing the actual leaked password. This can reveal which older platforms an email was once registered on, another pivot point.</td></tr>
+        </table>
+
+        <div class="callout warn">
+          <b>Where this stops.</b> Checking whether an email appears in a breach database is legitimate and widely used in professional OSINT. Attempting to use any password found in a breach to log into an account, even out of curiosity, is unauthorised access and a serious offence under the Cybercrimes Act. The line between looking and touching matters enormously here.
+        </div>
+
+        <h3>Why people reuse usernames despite knowing better</h3>
+        <p>Most people intellectually understand that reusing a username everywhere is not ideal, and do it anyway, because remembering a different identifier for every service they have ever signed up for is genuinely impractical without dedicated tooling most people never bother installing. This is not a character flaw investigators get to feel superior about, it is simply an extremely common human habit, and understanding why it happens is what makes correlation such a reliable technique. A username someone chose once, casually, for a forum account in 2015, often turns out to be the exact same handle they used to register a professional LinkedIn account a decade later, because changing habits is more effort than most people ever consciously decide to spend on it.</p>
+      </section>
+
+      <!-- ============ TAB 5: TELEGRAM OSINT ============ -->
+      <section class="section" id="t5">
+        <div class="kicker">A platform with its own rulebook</div>
+        <h2>Telegram OSINT</h2>
+        <p class="lede">Telegram behaves differently from every platform in Tab 3. Public channels and groups can often be previewed from an ordinary web browser, without an account, without joining, and without the channel owner ever knowing you looked.</p>
+
+        <p>Part of why Telegram sits apart from the other five platforms is architectural. Telegram channels are built as one way broadcast tools, closer to a public bulletin board than a private conversation, and the platform deliberately makes that broadcast content viewable outside the app itself to encourage discovery and growth. Private one to one chats and most groups remain properly closed off, but a channel's own creators have generally chosen public visibility as the entire point of running it, which is exactly why the web preview technique below works at all.</p>
+
+        <h3>Safe techniques, in order of how much they reveal</h3>
+        <table class="cmd-table">
+          <tr><th>Technique</th><th>How it works</th></tr>
+          <tr><td class="cmd-cell">Web preview</td><td>Many public channels can be viewed at t.me/s/channelname directly in a browser, showing recent posts without joining.</td></tr>
+          <tr><td class="cmd-cell">Search engine dorking</td><td>site:t.me combined with a keyword from Week 4's dorking skills can surface public channels a direct search inside Telegram might miss.</td></tr>
+          <tr><td class="cmd-cell">In app global search</td><td>Telegram's own search, used from your persona account, searches public channels and groups by name or keyword.</td></tr>
+          <tr><td class="cmd-cell">Careful, supervised joining</td><td>Joining a public group to monitor it is sometimes necessary and is covered by your persona rules, always with a clear investigative reason and mentor awareness.</td></tr>
+        </table>
+
+        <h3>Try reading a channel preview</h3>
+        <p class="lede" style="margin-bottom:10px;">Click on anything that looks worth noting.</p>
+
+        <div class="tg-mock">
+          <div class="tg-header">
+            <div class="tg-avatar">CI</div>
+            <div>
+              <div class="tg-name">Crestfield Industrial Updates</div>
+              <div class="tg-meta"><span class="tg-hot" data-tflag="1">t.me/crestfieldindustrialupdates</span> &middot; <span class="tg-hot" data-tflag="2">312 subscribers</span></div>
+            </div>
+          </div>
+          <div class="tg-row"><b>Pinned:</b> Welcome to our official updates channel. For business inquiries, contact <span class="tg-hot" data-tflag="3">@tundebakare_ind</span>.</div>
+          <div class="tg-row">Posted 2 days ago: New packaging catalogue now available, message us for pricing.</div>
+          <div class="tg-row">Posted 9 days ago: <span class="tg-hot" data-tflag="4">Channel created</span>, welcome everyone to our new official presence.</div>
+          <div id="tgFlagArea"></div>
+        </div>
+        <div class="mono" id="tgCounter" style="font-size:12.5px; color:var(--amber);">Details reviewed: 0 / 4</div>
+
+        <div class="callout next">
+          <b>What this preview alone tells you.</b> A channel created just nine days ago, with a modest 312 subscribers, listing the same username you already correlated in Tab 4 as its business contact. None of this proves wrongdoing on its own, but it is one more consistent thread in the same pattern, infrastructure and presence built quickly, all pointing back to the same handle.
+        </div>
+      </section>
+
+      <!-- ============ TAB 6: BUILD THE PROFILE ============ -->
+      <section class="section" id="t6">
+        <div class="kicker">Everything this week, applied</div>
+        <h2>Building Tunde Bakare's SOCMINT profile</h2>
+        <p class="lede">Four platform snapshots below, built for this exercise. Click through every highlighted detail on each one, then write up your findings in the report builder at the end. This report is your graded deliverable for the week.</p>
+
+        <h3>Reading these snapshots the right way</h3>
+        <p>Resist the urge to jump straight to the Facebook mutual connection, the strongest single lead here, and stop there. A mentor grading this exercise is not just checking whether you found the strongest clue, they are checking whether you actually worked through every platform methodically the way the pattern discipline from Tab 1 described. Weigh each platform on its own terms first, then step back and look at what all four add up to together.</p>
+
+        <div class="platform-label">LinkedIn</div>
+        <div class="profile-mock">
+          <div class="profile-banner" style="background:linear-gradient(120deg,#0A66C2,#4A9FE0);"></div>
+          <div class="profile-main">
+            <div class="profile-pic">TB</div>
+            <div class="profile-name">Tunde Bakare</div>
+            <div class="profile-handle">Managing Director at Crestfield Industrial Supplies</div>
+            <div class="profile-row"><span class="profile-hot" data-pflag="1">Joined LinkedIn 5 months ago &middot; 34 connections</span></div>
+            <div class="profile-row">Experience: <span class="profile-hot" data-pflag="2">Managing Director, Crestfield Industrial Supplies (5 months) &middot; before that, no prior work history listed</span></div>
+            <div id="pFlagArea1"></div>
+          </div>
+        </div>
+
+        <div class="platform-label">X (Twitter)</div>
+        <div class="profile-mock">
+          <div class="profile-banner" style="background:linear-gradient(120deg,#1A1A1A,#3A3A3A);"></div>
+          <div class="profile-main">
+            <div class="profile-pic">TB</div>
+            <div class="profile-name">Tunde Bakare</div>
+            <div class="profile-handle">@tundebakare_ind &middot; <span class="profile-hot" data-pflag="3">Joined 4 months ago</span></div>
+            <div class="profile-row"><span class="profile-hot" data-pflag="4">Profile photo matches a stock photography site's free business headshot collection</span></div>
+            <div class="profile-row">Bio: Managing Director, Crestfield Industrial Supplies. Packaging. Logistics. Lagos.</div>
+            <div id="pFlagArea2"></div>
+          </div>
+        </div>
+
+        <div class="platform-label">Instagram</div>
+        <div class="profile-mock">
+          <div class="profile-banner" style="background:linear-gradient(120deg,#833AB4,#E1306C,#F77737);"></div>
+          <div class="profile-main">
+            <div class="profile-pic">TB</div>
+            <div class="profile-name">Tunde Bakare</div>
+            <div class="profile-handle">@tundebakare_ind &middot; Private account</div>
+            <div class="profile-row"><span class="profile-hot" data-pflag="5">Tagged by another account at a lifestyle event, geotagged to a city with no connection to Crestfield's registered business address</span></div>
+            <div id="pFlagArea3"></div>
+          </div>
+        </div>
+
+        <div class="platform-label">Facebook</div>
+        <div class="profile-mock">
+          <div class="profile-banner" style="background:linear-gradient(120deg,#1877F2,#4293F7);"></div>
+          <div class="profile-main">
+            <div class="profile-pic">TB</div>
+            <div class="profile-name">Tunde Bakare</div>
+            <div class="profile-handle">Limited public profile</div>
+            <div class="profile-row"><span class="profile-hot" data-pflag="6">One mutual connection with an account previously flagged in an unrelated case for a similar packaging supply scheme</span></div>
+            <div id="pFlagArea4"></div>
+          </div>
+        </div>
+
+        <div class="mono" id="profileFlagCounter" style="font-size:12.5px; color:var(--amber); margin:10px 0 20px 0;">Details reviewed: 0 / 6</div>
+
+        <div class="divider"></div>
+
+        <h3>Your SOCMINT report</h3>
+        <div class="report-form">
+          <label>Subject and platforms checked</label>
+          <input type="text" id="repSubject" value="Tunde Bakare, checked across LinkedIn, X, Instagram, and Facebook">
+
+          <label>Summary of findings</label>
+          <textarea id="repFindings" placeholder="Summarise the pattern across all four platforms in your own words."></textarea>
+
+          <label>Strongest single indicator, and why</label>
+          <textarea id="repStrongest" placeholder="Which one finding would you lead with in a briefing, and why does it matter more than the others?"></textarea>
+
+          <label>Confidence level and recommended next step</label>
+          <textarea id="repNext" placeholder="State your confidence level and what you would check next, tying back to your Week 4 research plan."></textarea>
+
+          <button class="btn" id="buildReportBtn" style="margin-top:6px;">Build my SOCMINT report</button>
+          <button class="btn ghost" id="downloadReportBtn" style="margin-top:6px; margin-left:10px;">Download as text file</button>
+
+          <div class="report-preview" id="reportPreview">Your formatted SOCMINT report will appear here once you click "Build my SOCMINT report."</div>
+        </div>
+      </section>
+
+      <!-- ============ TAB 7: TASKS ============ -->
+      <section class="section" id="t7">
+        <div class="kicker">Before you move to Week 6</div>
+        <h2>This week's deliverables</h2>
+        <p class="lede">These match the syllabus for Phase 1, Week 5.</p>
+
+        <div class="task-row" data-task="1">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Complete the full SOCMINT profile build in Tab 6</b><span>Review every highlighted detail across all four platform snapshots before writing up your report.</span></div>
+        </div>
+        <div class="task-row" data-task="2">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Run a real username correlation lab</b><span>Use Sherlock or WhatsMyName on a username you choose (your own persona handle is a safe, sanctioned option), and note the pattern of results in your case notes.</span></div>
+        </div>
+        <div class="task-row" data-task="3">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Practise the Telegram web preview technique</b><span>Find one real public Telegram channel using the t.me/s/ method or a site:t.me dork, and note what it reveals without joining.</span></div>
+        </div>
+        <div class="task-row" data-task="4">
+          <input type="checkbox" class="task-check">
+          <div class="task-text"><b>Submit your SOCMINT investigation report</b><span>Finish and download the report you built in Tab 6. This is this week's main graded deliverable.</span></div>
+        </div>
+
+        <div class="callout next">
+          <b>Looking ahead to Week 6.</b> Next week moves from people to places. You will trace individuals and organisations through public records, and learn image and geolocation analysis, reading shadows, landmarks, and signage to pin down exactly where a photo was taken.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============ SIDEBAR ============ -->
+    <div class="sidebar-col">
+      <div class="side-card">
+        <h3>Your progress</h3>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">0 of 7 sections viewed</div>
+      </div>
+
+      <div class="side-card">
+        <h3>Week 5 glossary</h3>
+        <div id="glossaryList">
+          <div class="glossary-item"><div class="glossary-term">SOCMINT <span class="plus">+</span></div><div class="glossary-def">Social Media Intelligence, gathering and analysing publicly available information from social platforms.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Username correlation <span class="plus">+</span></div><div class="glossary-def">Checking whether the same username appears across many platforms, revealing a wider digital footprint.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Sherlock / WhatsMyName <span class="plus">+</span></div><div class="glossary-def">Free tools that check a single username against hundreds of platforms in one search.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Have I Been Pwned <span class="plus">+</span></div><div class="glossary-def">A free service showing which known data breaches an email address has appeared in.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Geotag <span class="plus">+</span></div><div class="glossary-def">Location data attached to a photo or post, sometimes revealing exactly where it was taken.</div></div>
+          <div class="glossary-item"><div class="glossary-term">Web preview (Telegram) <span class="plus">+</span></div><div class="glossary-def">Viewing a public Telegram channel's recent posts through a browser at t.me/s/ without joining.</div></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Quick checklist</h3>
+        <div class="checklist-item"><input type="checkbox" id="cl1"><label for="cl1">Read the rules and limits tab</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl2"><label for="cl2">Explored all six platform cards</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl3"><label for="cl3">Ran the correlation search</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl4"><label for="cl4">Reviewed all profile details in Tab 6</label></div>
+        <div class="checklist-item"><input type="checkbox" id="cl5"><label for="cl5">Built and downloaded my SOCMINT report</label></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  SACS &middot; Cyber Intelligence &amp; Investigations Professional Track &middot; Week 5 of 26 &middot; Built for live, shared screen teaching
+</footer>
+
+<script>
+// ---------- TAB SWITCHING ----------
+const tabBtns = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('.section');
+let viewedTabs = new Set(['t1']);
+const TOTAL_TABS = 7;
+
+function updateProgress(){
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  const pct = Math.round((viewedTabs.size / TOTAL_TABS) * 100);
+  fill.style.width = pct + '%';
+  label.textContent = viewedTabs.size + ' of ' + TOTAL_TABS + ' sections viewed';
+  try{ localStorage.setItem('sacs_wk5_viewed', JSON.stringify([...viewedTabs])); }catch(e){}
+}
+tabBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.getAttribute('data-tab');
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    sections.forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+    viewedTabs.add(id);
+    updateProgress();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+try{
+  const saved = JSON.parse(localStorage.getItem('sacs_wk5_viewed') || '["t1"]');
+  saved.forEach(t=>viewedTabs.add(t));
+}catch(e){}
+updateProgress();
+
+// ---------- GLOSSARY ----------
+document.querySelectorAll('.glossary-item').forEach(item=>{
+  item.addEventListener('click', ()=> item.classList.toggle('open'));
+});
+
+// ---------- PLATFORM CARDS ----------
+document.querySelectorAll('.platform-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    const wasOpen = card.classList.contains('open');
+    document.querySelectorAll('.platform-card').forEach(c=>c.classList.remove('open'));
+    if(!wasOpen) card.classList.add('open');
+  });
+});
+
+// ---------- ACCORDION ----------
+document.querySelectorAll('.acc-item').forEach(acc=>{
+  acc.querySelector('.acc-head').addEventListener('click', ()=>{
+    acc.classList.toggle('open');
+  });
+});
+
+// ---------- USERNAME CORRELATION SIM ----------
+const corrSites = [
+  {name:'X (Twitter)', found:true},
+  {name:'Instagram', found:true},
+  {name:'Telegram', found:true},
+  {name:'LinkedIn', found:false},
+  {name:'Facebook', found:false},
+  {name:'GitHub', found:false},
+  {name:'Reddit', found:false},
+  {name:'TikTok', found:false},
+  {name:'An old gaming forum from 2013', found:false},
+  {name:'A photography portfolio site', found:false},
+];
+document.getElementById('corrRunBtn').addEventListener('click', ()=>{
+  const uname = document.getElementById('corrUsername').value || 'unknown';
+  const resultsBox = document.getElementById('corrResults');
+  const statusLine = document.getElementById('corrStatus');
+  resultsBox.innerHTML = '';
+  statusLine.textContent = 'Searching ' + corrSites.length + ' sites for "' + uname + '"...';
+  let i = 0;
+  const interval = setInterval(()=>{
+    if(i >= corrSites.length){
+      clearInterval(interval);
+      const foundCount = corrSites.filter(s=>s.found).length;
+      statusLine.textContent = 'Done. Found on ' + foundCount + ' of ' + corrSites.length + ' sites checked. Notice which kind of sites, new versus long established, the hits fall on.';
+      return;
+    }
+    const s = corrSites[i];
+    const row = document.createElement('div');
+    row.className = 'corr-row';
+    row.innerHTML = '<span class="site">' + s.name + '</span><span class="status ' + (s.found ? 'found">FOUND' : 'notfound">not found') + '</span>';
+    resultsBox.appendChild(row);
+    i++;
+  }, 220);
+});
+
+// ---------- TELEGRAM MOCK FLAGS ----------
+const tgFlagText = {
+  "1": "The channel's own link confirms the exact same username you already correlated in Tab 4, one more thread tying every platform back to this single identity.",
+  "2": "312 subscribers is a modest number for a supposedly established supplier. Worth comparing against how long the channel has actually existed.",
+  "3": "The listed business contact is, once again, the same handle. Every platform keeps pointing back to one consistent identity, which is itself worth noting as a pattern.",
+  "4": "Nine days old. Combined with the LinkedIn account being five months old and the domain from Week 4 being registered shortly before use, a picture of quickly assembled infrastructure keeps repeating.",
+};
+let tgFound = new Set();
+document.querySelectorAll('.tg-hot').forEach(hot=>{
+  hot.addEventListener('click', ()=>{
+    hot.classList.add('found');
+    const n = hot.getAttribute('data-tflag');
+    if(!tgFound.has(n)){
+      tgFound.add(n);
+      const box = document.createElement('div');
+      box.className = 'tg-flag show';
+      box.textContent = tgFlagText[n];
+      document.getElementById('tgFlagArea').appendChild(box);
+    }
+    document.getElementById('tgCounter').textContent = 'Details reviewed: ' + tgFound.size + ' / 4';
+  });
+});
+
+// ---------- PROFILE BUILD FLAGS ----------
+const pFlagText = {
+  "1": "Five months old with only 34 connections is thin for someone claiming to run a supply company. A real, longstanding managing director usually accumulates a much larger professional network over time.",
+  "2": "No prior work history at all is unusual for a managing director level role. Careers do not normally begin at the top with no earlier listed positions.",
+  "3": "Four months old on this platform, one month younger than the LinkedIn account. Multiple accounts created within a short window of each other is a pattern worth logging.",
+  "4": "A reverse image search against stock photography would very likely confirm this is not actually a photo of the account holder. Stolen or purchased stock photos are extremely common in fabricated personas.",
+  "5": "A geotag placing the subject somewhere with no stated connection to the business does not prove anything alone, but it is one more inconsistency layered onto the others.",
+  "6": "A mutual connection to an account already flagged in an unrelated case is the single strongest lead here. It suggests this is not an isolated case but part of a wider pattern worth escalating.",
+};
+const pFlagAreaMap = { "1":"pFlagArea1", "2":"pFlagArea1", "3":"pFlagArea2", "4":"pFlagArea2", "5":"pFlagArea3", "6":"pFlagArea4" };
+let profileFound = new Set();
+document.querySelectorAll('#t6 .profile-hot').forEach(hot=>{
+  hot.addEventListener('click', ()=>{
+    hot.classList.add('found');
+    const n = hot.getAttribute('data-pflag');
+    if(!profileFound.has(n)){
+      profileFound.add(n);
+      const area = document.getElementById(pFlagAreaMap[n]);
+      const box = document.createElement('div');
+      box.className = 'profile-flag show';
+      box.textContent = pFlagText[n];
+      area.appendChild(box);
+    }
+    document.getElementById('profileFlagCounter').textContent = 'Details reviewed: ' + profileFound.size + ' / 6';
+  });
+});
+
+// ---------- REPORT BUILDER ----------
+document.getElementById('buildReportBtn').addEventListener('click', ()=>{
+  const subject = document.getElementById('repSubject').value || '(not set)';
+  const findings = document.getElementById('repFindings').value || '(not set)';
+  const strongest = document.getElementById('repStrongest').value || '(not set)';
+  const next = document.getElementById('repNext').value || '(not set)';
+  const out = 'SOCMINT INVESTIGATION REPORT, CASE CII-2026-0104\n' +
+    '=================================================\n\n' +
+    'Subject and platforms checked:\n' + subject + '\n\n' +
+    'Summary of findings:\n' + findings + '\n\n' +
+    'Strongest single indicator:\n' + strongest + '\n\n' +
+    'Confidence level and next step:\n' + next;
+  document.getElementById('reportPreview').textContent = out;
+});
+document.getElementById('downloadReportBtn').addEventListener('click', ()=>{
+  const content = document.getElementById('reportPreview').textContent;
+  const blob = new Blob([content], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'week05-socmint-report.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ---------- TASK CHECKLIST ----------
+document.querySelectorAll('.task-row').forEach(row=>{
+  const cb = row.querySelector('.task-check');
+  const id = 'sacs_wk5_task_' + row.getAttribute('data-task');
+  try{ if(localStorage.getItem(id) === 'true'){ cb.checked = true; row.classList.add('done'); } }catch(e){}
+  cb.addEventListener('change', ()=>{
+    row.classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+
+// ---------- SIDEBAR QUICK CHECKLIST ----------
+document.querySelectorAll('.checklist-item input').forEach(cb=>{
+  const id = 'sacs_wk5_side_' + cb.id;
+  try{
+    if(localStorage.getItem(id) === 'true'){ cb.checked = true; cb.closest('.checklist-item').classList.add('done'); }
+  }catch(e){}
+  cb.addEventListener('change', ()=>{
+    cb.closest('.checklist-item').classList.toggle('done', cb.checked);
+    try{ localStorage.setItem(id, cb.checked); }catch(e){}
+  });
+});
+</script>
+
+</body>
+</html>
